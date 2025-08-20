@@ -39,7 +39,7 @@ const HomePage = () => {
         >
           <h1 className="mb-8 text-4xl font-bold md:text-6xl">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
-              PolyAgent Arena
+            MonopolyAI Arena
             </span>
           </h1>
          
