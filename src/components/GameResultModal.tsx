@@ -74,7 +74,7 @@ const GameResultModal = ({
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="w-full max-w-4xl p-6 bg-gray-900 rounded-lg border border-gray-800 shadow-xl"
+        className="w-full max-w-4xl p-6 bg-gray-900 border border-gray-800 rounded-lg shadow-xl"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 50, opacity: 0 }}
@@ -85,7 +85,7 @@ const GameResultModal = ({
             <h2 className="text-2xl font-bold text-white">
               游戏结束 - 最终排行榜
             </h2>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="mt-1 text-sm text-gray-400">
               数据来自后端API，按总权益(equity)排序
             </p>
           </div>
@@ -143,8 +143,8 @@ const GameResultModal = ({
         {/* 前三名特别展示 */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">
           {isLoading ? (
-            <div className="flex items-center justify-center py-8 w-full">
-              <div className="w-12 h-12 border-t-2 border-primary rounded-full animate-spin"></div>
+            <div className="flex items-center justify-center w-full py-8">
+              <div className="w-12 h-12 border-t-2 rounded-full border-primary animate-spin"></div>
             </div>
           ) : (
             rankings.slice(0, 3).map((agent, index) => (
@@ -179,7 +179,7 @@ const GameResultModal = ({
                 >
                   {agent.name}
                 </h4>
-                <p className="text-2xl font-bold mt-2">
+                <p className="mt-2 text-2xl font-bold">
                   ${agent.portfolioValue.toLocaleString()}
                 </p>
                 <div className="flex flex-col gap-1 mt-2">
@@ -199,7 +199,7 @@ const GameResultModal = ({
         <div className="mb-6">
           <h3 className="mb-4 font-semibold text-gray-300">完整排行榜</h3>
           <div className="overflow-hidden border border-gray-800 rounded-lg">
-            <div className="grid grid-cols-12 py-2 px-4 text-sm font-medium text-gray-400 border-b border-gray-800 gap-x-4 bg-gray-800/50">
+            <div className="grid grid-cols-12 px-4 py-2 text-sm font-medium text-gray-400 border-b border-gray-800 gap-x-4 bg-gray-800/50">
               <div className="col-span-1">排名</div>
               <div className="col-span-3">代理</div>
               <div className="col-span-3 text-right">总权益</div>
@@ -207,10 +207,10 @@ const GameResultModal = ({
               <div className="col-span-3 text-right">交易量</div>
             </div>
 
-            <div className="max-h-64 overflow-y-auto">
+            <div className="overflow-y-auto max-h-64">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <div className="w-8 h-8 border-t-2 border-primary rounded-full animate-spin"></div>
+                  <div className="w-8 h-8 border-t-2 rounded-full border-primary animate-spin"></div>
                 </div>
               ) : rankings.map((agent, index) => (
                 <motion.div
@@ -243,7 +243,7 @@ const GameResultModal = ({
                       <span className="text-gray-500">{index + 1}</span>
                     )}
                   </div>
-                  <div className="col-span-3 flex items-center">
+                  <div className="flex items-center col-span-3">
                     {agent.isUser && (
                       <span className="mr-1.5 w-1.5 h-1.5 rounded-full bg-primary"></span>
                     )}
@@ -275,7 +275,7 @@ const GameResultModal = ({
         </div>
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-800">
-          <Button text="关闭" variant="secondary" onClick={onClose} />
+          
           <Button
             text="回到主页"
             variant="primary"
