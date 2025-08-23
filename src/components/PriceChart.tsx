@@ -1,315 +1,214 @@
-import { useState, useMemo } from 'react';
-import type { MarketData } from '../types';
+import { useState, useEffect, useMemo } from 'react'
 import {
-  ResponsiveContainer, 
-  XAxis, 
-  YAxis, 
+  ResponsiveContainer,
+  ComposedChart,
+  XAxis,
+  YAxis,
   CartesianGrid,
   Tooltip,
-  BarChart,
-  Bar,
-  Cell,
-  ComposedChart
-} from 'recharts';
+  Line
+} from 'recharts'
 
-// Extended data structure for candlestick chart
-interface CandlestickData {
-  time: string;
-  open: number;
-  close: number;
-  high: number;
-  low: number;
-  volume: number;
+// WebSocket数据结构，来自perp-bot-mvp
+interface PerpTickData {
+  tick: number
+  price: number
+  buyVol: number
+  sellVol: number
+  net: number
+  announcements: Array<{
+    agentId: string
+    text: string
+    stance?: string
+  }>
 }
 
 interface PriceChartProps {
-  data: MarketData[];
+  wsData: PerpTickData[]
+  onMaxTickReached?: (tick: number) => void
+  maxTick?: number
 }
 
-const PriceChart = ({ data }: PriceChartProps) => {
-  const [timeframe, setTimeframe] = useState('1d'); // 1h, 4h, 1d, 1w
+const PriceChart: React.FC<PriceChartProps> = ({
+  wsData,
+  onMaxTickReached,
+  maxTick = 15
+}) => {
+  const [priceChangePercent, setPriceChangePercent] = useState<number>(0)
+  const [priceChange, setPriceChange] = useState<number>(0)
 
-  // Only use USDT data
-  const selectedData = data.find(d => d.symbol === 'USDT') || data[0];
-  
-  // Price change color
-  const priceChangeColor = 
-    selectedData?.change > 0 ? 'text-green-500' : 
-    selectedData?.change < 0 ? 'text-red-500' : 'text-gray-400';
-  
-  // Generate candlestick data based on selected currency (simulated data)
-  const candlestickData = useMemo(() => {
-    // Generate continuous candlestick data that evolves to the right
-    // In a real application, this would be historical data from an API
-    const generateCandlestickData = (): CandlestickData[] => {
-      const now = new Date();
-      const basePrice = selectedData?.price || 50000;
-      const volatility = Math.abs(selectedData?.change || 2) / 100 * basePrice;
-      const periods = timeframe === '1h' ? 60 : 
-                     timeframe === '4h' ? 96 :
-                     timeframe === '1d' ? 24 : 7;
-      
-      const result: CandlestickData[] = [];
-      
-      for (let i = 0; i < periods; i++) {
-        // 根据索引创建时间，从过去到现在
-        const time = new Date(now.getTime() - (periods - i) * (
-          timeframe === '1h' ? 60 * 1000 :         // 每分钟一个点
-          timeframe === '4h' ? 15 * 60 * 1000 :    // 每15分钟一个点
-          timeframe === '1d' ? 60 * 60 * 1000 :    // 每小时一个点
-          24 * 60 * 60 * 1000 / 7                  // 1周显示7个点，每天一个点
-        ));
-        
-        // 基于上一个收盘价生成这一周期的开盘价（第一个周期使用 basePrice）
-        const open = i === 0 ? basePrice : result[i - 1].close;
-        
-        // 基于开盘价生成价格变化，保持趋势连续性
-        // 使用偏移的随机数使价格更自然地波动，且有轻微的趋势性
-        // -0.45 而不是 -0.5 给予轻微的上涨偏向
-        const trend = i > 0 ? (result[i - 1].close > result[i - 1].open ? 0.05 : -0.05) : 0;
-        const priceMove = ((Math.random() - 0.45) + trend) * volatility;
-        
-        const close = open + priceMove;
-        
-        // 生成高低点，确保它们合理地围绕开盘和收盘价
-        const high = Math.max(open, close) + Math.random() * volatility * 0.3;
-        const low = Math.min(open, close) - Math.random() * volatility * 0.3;
-        
-        // 交易量也有一定的连续性，与价格变化幅度相关
-        const volumeBase = selectedData?.volume * 0.05;
-        const volumeVariation = Math.abs(priceMove) / volatility * selectedData?.volume * 0.08;
-        const volume = Math.floor(volumeBase + volumeVariation);
-        
-        result.push({
-          time: `${time.getHours().toString().padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')}`,
-          open,
-          close,
-          high,
-          low,
-          volume
-        });
-      }
-      
-      return result;
-    };
+  // 计算价格变化
+  useEffect(() => {
+    if (wsData.length >= 2) {
+      const currentPrice = wsData[wsData.length - 1].price
+      const previousPrice = wsData[0].price
+      const change = currentPrice - previousPrice
+      const changePercent = (change / previousPrice) * 100
 
-    return generateCandlestickData();
-  }, [selectedData, timeframe]);
-
-  // 计算价格区间
-  const priceMin = useMemo(() => 
-    Math.min(...candlestickData.map(d => d.low)) * 0.995, 
-    [candlestickData]
-  );
-  
-  const priceMax = useMemo(() => 
-    Math.max(...candlestickData.map(d => d.high)) * 1.005, 
-    [candlestickData]
-  );
-
-  // 自定义 tooltip
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      
-      // 处理交易量图表的情况
-      if (payload[0].dataKey === 'volume') {
-        return (
-          <div className="p-2 text-xs bg-gray-800 border border-gray-700 rounded-md">
-            <p className="mb-1 font-medium">{data.time}</p>
-            <p className="text-gray-300">Volume: <span className="text-white">${(data.volume / 1000000).toFixed(2)}M</span></p>
-          </div>
-        );
-      }
-      
-      // 处理K线图的情况
-      return (
-        <div className="p-2 text-xs bg-gray-800 border border-gray-700 rounded-md">
-          <p className="mb-1 font-medium">{data.time}</p>
-          <p className="text-gray-300">Open: <span className="text-white">${data.open.toLocaleString(undefined, {maximumFractionDigits: 2})}</span></p>
-          <p className="text-gray-300">Close: <span className={data.close >= data.open ? "text-green-500" : "text-red-500"}>${data.close.toLocaleString(undefined, {maximumFractionDigits: 2})}</span></p>
-          <p className="text-gray-300">High: <span className="text-green-400">${data.high.toLocaleString(undefined, {maximumFractionDigits: 2})}</span></p>
-          <p className="text-gray-300">Low: <span className="text-red-400">${data.low.toLocaleString(undefined, {maximumFractionDigits: 2})}</span></p>
-          <p className="text-gray-300">Volume: <span className="text-blue-400">${(data.volume / 1000000).toFixed(2)}M</span></p>
-        </div>
-      );
+      setPriceChange(change)
+      setPriceChangePercent(changePercent)
     }
-    return null;
-  };
+  }, [wsData])
+
+  // 检查是否达到最大tick数
+  useEffect(() => {
+    if (wsData.length > 0) {
+      const latestTick = wsData[wsData.length - 1].tick
+      if (latestTick >= maxTick && onMaxTickReached) {
+        onMaxTickReached(latestTick)
+      }
+    }
+  }, [wsData, onMaxTickReached, maxTick])
+
+  // 获取最新的价格数据
+  const latestData = useMemo(() => {
+    return wsData.length > 0 ? wsData[wsData.length - 1] : null
+  }, [wsData])
+
+  // 这里不再需要价格统计信息
+  // 我们已移除了相关显示
+
+  // 格式化图表数据，增加时间戳，并过滤掉重复的tick
+  const chartData = useMemo(() => {
+    // 过滤掉重复的tick，只保留每个tick的最后一条数据
+    const uniqueTicksData = wsData.reduce<PerpTickData[]>((acc, current) => {
+      const existingIndex = acc.findIndex((item) => item.tick === current.tick)
+      if (existingIndex >= 0) {
+        // 替换已存在的tick数据（保留最新的）
+        acc[existingIndex] = current
+      } else {
+        // 添加新的tick数据
+        acc.push(current)
+      }
+      return acc
+    }, [])
+
+    // 按tick数值排序，确保图表横轴正确显示
+    const sortedData = [...uniqueTicksData].sort((a, b) => a.tick - b.tick)
+
+    return sortedData.map((data) => ({
+      ...data,
+      timestamp: `Tick ${data.tick}`,
+      id: data.tick
+    }))
+  }, [wsData])
+
+  // 自定义提示框
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload
+
+      return (
+        <div className="p-3 bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
+          <p className="mb-2 text-sm text-gray-300">{label}</p>
+          <div className="space-y-1">
+            <p className="text-white">
+              价格:{' '}
+              <span className="font-bold text-primary">
+                ${data.price.toFixed(2)}
+              </span>
+            </p>
+            <p className="text-green-400">买入量: {data.buyVol.toFixed(1)}</p>
+            <p className="text-red-400">卖出量: {data.sellVol.toFixed(1)}</p>
+            <p
+              className={`${data.net >= 0 ? 'text-green-400' : 'text-red-400'}`}
+            >
+              净流量: {data.net >= 0 ? '+' : ''}
+              {data.net.toFixed(1)}
+            </p>
+            <p className="text-gray-400">Tick: {data.tick}</p>
+          </div>
+        </div>
+      )
+    }
+
+    return null
+  }
+
+  // 如果没有数据，显示加载状态
+  if (wsData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64 border border-gray-800 rounded-lg bg-gray-900/50">
+        <p className="text-gray-400">waiting...</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="p-4 border bg-surface rounded-xl border-gray-700/30">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold">USDT Market Data</h3>
-      </div>
-
-      <div className="flex items-end justify-between mb-4">
-        <div>
-          <p className="text-sm text-gray-400">Current Price</p>
-          <p className="text-2xl font-bold">${selectedData?.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-sm text-gray-400">24h Change</p>
-          <p className={`text-lg font-bold ${priceChangeColor}`}>
-            {selectedData?.change > 0 ? '+' : ''}{selectedData?.change.toFixed(2)}%
-          </p>
-        </div>
-      </div>
-      
-      {/* 时间框架选择器 */}
-      <div className="flex gap-2 mb-4">
-        {['1h', '4h', '1d', '1w'].map(tf => (
-          <button
-            key={tf}
-            className={`px-3 py-1 text-xs rounded-md transition-all ${
-              timeframe === tf
-                ? 'bg-primary text-white'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+    <div className="space-y-4">
+      {/* 当前价格显示 */}
+      <div className="p-4 text-center border border-gray-700 rounded-lg bg-gray-800/50">
+        <p className="text-2xl font-bold text-primary">
+          ${latestData?.price.toFixed(2)}
+        </p>
+        <p className="text-sm text-gray-400">Price</p>
+        {priceChange !== 0 && (
+          <p
+            className={`text-sm ${
+              priceChange >= 0 ? 'text-green-400' : 'text-red-400'
             }`}
-            onClick={() => setTimeframe(tf)}
           >
-            {tf}
-          </button>
-        ))}
+            {priceChange >= 0 ? '+' : ''}
+            {priceChange.toFixed(2)} ({priceChangePercent >= 0 ? '+' : ''}
+            {priceChangePercent.toFixed(2)}%)
+          </p>
+        )}
       </div>
 
-      {/* K 线图 */}
-      <div className="relative w-full mt-2 h-80">
+      {/* 简单价格折线图 - 增加高度 */}
+      <div
+        className="p-4 border border-gray-800 rounded-lg bg-gray-900/30"
+        style={{ height: '480px' }}
+      >
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
-            data={candlestickData}
-            margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
+            data={chartData}
+            margin={{ top: 10, right: 30, left: 5, bottom: 30 }} // 增加底部边距，为X轴标签留出更多空间
           >
-            <CartesianGrid 
-              strokeDasharray="3 3" 
-              stroke="#333333"
-              vertical={false}
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis
+              dataKey="timestamp"
+              tick={{ fontSize: 12, fill: '#9CA3AF' }}
+              axisLine={{ stroke: '#6B7280' }}
+              height={60}
+              allowDataOverflow={false}
+              interval={
+                chartData.length > 10 ? Math.ceil(chartData.length / 10) : 0
+              } // 动态计算间隔，确保显示合适数量的tick
             />
-            <XAxis 
-              dataKey="time" 
-              tick={{fontSize: 10, fill: '#9ca3af'}}
-              axisLine={{ stroke: '#4b5563' }}
-              tickLine={false}
-              interval={Math.floor(candlestickData.length / 8)}
-            />
-            <YAxis 
-              domain={[priceMin, priceMax]}
-              tick={{fontSize: 10, fill: '#9ca3af'}}
-              axisLine={{ stroke: '#4b5563' }}
-              tickLine={false}
-              orientation="right"
-              tickFormatter={(value) => `$${value.toLocaleString(undefined, {maximumFractionDigits: 0})}`}
+            <YAxis
+              domain={[
+                (dataMin: number) => dataMin * 0.9995,
+                (dataMax: number) => dataMax * 1.0005
+              ]}
+              tick={{ fontSize: 12, fill: '#9CA3AF' }}
+              axisLine={{ stroke: '#6B7280' }}
+              tickFormatter={(value) => `$${value.toFixed(2)}`}
+              tickCount={10}
               width={60}
             />
-            <YAxis 
-              yAxisId="volume"
-              orientation="left"
-              tick={false}
-              axisLine={false}
-              tickLine={false}
-              domain={['dataMin', 'dataMax']}
-              hide={true}
-            />
-            <Tooltip 
-              content={<CustomTooltip />} 
-              cursor={{ stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '3 3' }}
-            />
-            
-            {/* K 线 */}
-            {candlestickData.map((entry, index) => (
-              <rect
-                key={`candle-${index}`}
-                x={`${index * (100 / candlestickData.length) + (100 / candlestickData.length / 4)}%`}
-                y={`${((priceMax - Math.max(entry.open, entry.close)) / (priceMax - priceMin)) * 100}%`}
-                width={`${100 / candlestickData.length / 2}%`}
-                height={`${(Math.abs(entry.close - entry.open) / (priceMax - priceMin)) * 100}%`}
-                fill={entry.close >= entry.open ? '#10b981' : '#ef4444'}
-                fillOpacity={0.8}
-              />
-            ))}
-            
-            {/* 上下影线 */}
-            {candlestickData.map((entry, index) => (
-              <line
-                key={`wick-${index}`}
-                x1={`${index * (100 / candlestickData.length) + (100 / candlestickData.length / 2)}%`}
-                y1={`${((priceMax - entry.high) / (priceMax - priceMin)) * 100}%`}
-                x2={`${index * (100 / candlestickData.length) + (100 / candlestickData.length / 2)}%`}
-                y2={`${((priceMax - entry.low) / (priceMax - priceMin)) * 100}%`}
-                stroke={entry.close >= entry.open ? '#10b981' : '#ef4444'}
-                strokeWidth={1}
-              />
-            ))}
-            
-            {/* 交易量柱状图 */}
-            <Bar 
-              dataKey="volume" 
-              yAxisId="volume" 
-              fill="#6366f1" 
-              opacity={0.3} 
-              barSize={5}
-              height={20}
+            <Tooltip content={<CustomTooltip />} />
+
+            {/* 价格线 */}
+            <Line
+              type="monotone"
+              dataKey="price"
+              name="price"
+              stroke="#6366F1"
+              strokeWidth={2}
+              dot={{ stroke: '#6366F1', strokeWidth: 2, fill: '#1F2937', r: 3 }}
+              activeDot={{
+                stroke: '#6366F1',
+                strokeWidth: 2,
+                fill: '#1F2937',
+                r: 5
+              }}
             />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      
-      {/* 交易量部分 */}
-      <div className="relative w-full h-20 mt-1">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={candlestickData}
-            margin={{ top: 0, right: 5, bottom: 5, left: 5 }}
-          >
-            <XAxis 
-              dataKey="time" 
-              tick={{fontSize: 10, fill: '#9ca3af'}}
-              axisLine={{ stroke: '#4b5563' }}
-              tickLine={false}
-              height={20}
-              interval={Math.floor(candlestickData.length / 8)}
-            />
-            <Tooltip 
-              content={<CustomTooltip />}
-              cursor={{ fill: '#6366f1', fillOpacity: 0.2 }}
-            />
-            <Bar dataKey="volume">
-              {
-                candlestickData.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`}
-                    fill={entry.close >= entry.open ? '#10b981' : '#ef4444'}
-                    fillOpacity={0.5}
-                  />
-                ))
-              }
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-      
-      <div className="grid grid-cols-3 gap-2 mt-4 text-center">
-        <div className="p-2 rounded-lg bg-gray-800/50">
-          <p className="text-xs text-gray-400">Volume (24h)</p>
-          <p className="text-sm font-medium">
-            ${(selectedData?.volume / 1000000).toFixed(1)}M
-          </p>
-        </div>
-        <div className="p-2 rounded-lg bg-gray-800/50">
-          <p className="text-xs text-gray-400">Orders</p>
-          <p className="text-sm font-medium">
-            {Math.floor(Math.random() * 1000) + 500}
-          </p>
-        </div>
-        <div className="p-2 rounded-lg bg-gray-800/50">
-          <p className="text-xs text-gray-400">Volatility</p>
-          <p className="text-sm font-medium">
-            {Math.abs(selectedData?.change * 1.5).toFixed(1)}%
-          </p>
-        </div>
-      </div>
     </div>
-  );
-};
+  )
+}
 
-export default PriceChart;
+export default PriceChart

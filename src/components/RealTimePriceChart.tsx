@@ -52,9 +52,9 @@ const RealTimePriceChart = ({
       tick: currentTick
     }
 
-    setChartData(prev => {
+    setChartData((prev) => {
       const updated = [...prev, newDataPoint].slice(-50) // 保留最近50个数据点
-      
+
       // 计算价格变化
       if (updated.length >= 2) {
         const oldPrice = updated[updated.length - 2].price
@@ -63,16 +63,19 @@ const RealTimePriceChart = ({
         setPriceChange(change)
         setPriceChangePercent(changePercent)
       }
-      
+
       return updated
     })
   }, [currentPrice, buyVolume, sellVolume, netFlow, currentTick])
 
   // 计算价格统计
-  const prices = chartData.map(d => d.price)
+  const prices = chartData.map((d) => d.price)
   const minPrice = prices.length > 0 ? Math.min(...prices) : currentPrice
   const maxPrice = prices.length > 0 ? Math.max(...prices) : currentPrice
-  const avgPrice = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : currentPrice
+  const avgPrice =
+    prices.length > 0
+      ? prices.reduce((a, b) => a + b, 0) / prices.length
+      : currentPrice
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -82,20 +85,20 @@ const RealTimePriceChart = ({
           <p className="mb-2 text-sm text-gray-300">{label}</p>
           <div className="space-y-1">
             <p className="text-white">
-              Price: <span className="font-bold text-primary">${data.price.toFixed(2)}</span>
+              Price:{' '}
+              <span className="font-bold text-primary">
+                ${data.price.toFixed(2)}
+              </span>
             </p>
-            <p className="text-green-400">
-              Buy: {data.buyVol.toFixed(1)}
+            <p className="text-green-400">Buy: {data.buyVol.toFixed(1)}</p>
+            <p className="text-red-400">Sell: {data.sellVol.toFixed(1)}</p>
+            <p
+              className={`${data.net >= 0 ? 'text-green-400' : 'text-red-400'}`}
+            >
+              Net: {data.net >= 0 ? '+' : ''}
+              {data.net.toFixed(1)}
             </p>
-            <p className="text-red-400">
-              Sell: {data.sellVol.toFixed(1)}
-            </p>
-            <p className={`${data.net >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-              Net: {data.net >= 0 ? '+' : ''}{data.net.toFixed(1)}
-            </p>
-            <p className="text-gray-400">
-              Tick: {data.tick}
-            </p>
+            <p className="text-gray-400">Tick: {data.tick}</p>
           </div>
         </div>
       )
@@ -113,29 +116,40 @@ const RealTimePriceChart = ({
           </p>
           <p className="text-sm text-gray-400">Current Price</p>
           {priceChange !== 0 && (
-            <p className={`text-sm ${priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-              {priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)} ({priceChangePercent >= 0 ? '+' : ''}{priceChangePercent.toFixed(2)}%)
+            <p
+              className={`text-sm ${
+                priceChange >= 0 ? 'text-green-400' : 'text-red-400'
+              }`}
+            >
+              {priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)} (
+              {priceChangePercent >= 0 ? '+' : ''}
+              {priceChangePercent.toFixed(2)}%)
             </p>
           )}
         </div>
-        
+
         <div className="text-center">
           <p className="text-lg font-bold text-green-400">
             {buyVolume.toFixed(1)}
           </p>
           <p className="text-sm text-gray-400">Buy Volume</p>
         </div>
-        
+
         <div className="text-center">
           <p className="text-lg font-bold text-red-400">
             {sellVolume.toFixed(1)}
           </p>
           <p className="text-sm text-gray-400">Sell Volume</p>
         </div>
-        
+
         <div className="text-center">
-          <p className={`text-lg font-bold ${netFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-            {netFlow >= 0 ? '+' : ''}{netFlow.toFixed(1)}
+          <p
+            className={`text-lg font-bold ${
+              netFlow >= 0 ? 'text-green-400' : 'text-red-400'
+            }`}
+          >
+            {netFlow >= 0 ? '+' : ''}
+            {netFlow.toFixed(1)}
           </p>
           <p className="text-sm text-gray-400">Net Flow</p>
         </div>
@@ -149,29 +163,29 @@ const RealTimePriceChart = ({
             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis 
-              dataKey="timestamp" 
+            <XAxis
+              dataKey="timestamp"
               tick={{ fontSize: 12, fill: '#9CA3AF' }}
               axisLine={{ stroke: '#6B7280' }}
               interval="preserveStartEnd"
             />
-            <YAxis 
+            <YAxis
               domain={['dataMin - 0.5', 'dataMax + 0.5']}
               tick={{ fontSize: 12, fill: '#9CA3AF' }}
               axisLine={{ stroke: '#6B7280' }}
               tickFormatter={(value) => `$${value.toFixed(1)}`}
             />
             <Tooltip content={<CustomTooltip />} />
-            
+
             {/* 平均价格线 */}
             {chartData.length > 5 && (
-              <ReferenceLine 
-                y={avgPrice} 
-                stroke="#F59E0B" 
-                strokeDasharray="5 5" 
+              <ReferenceLine
+                y={avgPrice}
+                stroke="#F59E0B"
+                strokeDasharray="5 5"
               />
             )}
-            
+
             {/* 价格线 */}
             <Line
               type="monotone"
@@ -179,7 +193,12 @@ const RealTimePriceChart = ({
               stroke="#6366F1"
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, stroke: '#6366F1', strokeWidth: 2, fill: '#1F2937' }}
+              activeDot={{
+                r: 4,
+                stroke: '#6366F1',
+                strokeWidth: 2,
+                fill: '#1F2937'
+              }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -191,13 +210,20 @@ const RealTimePriceChart = ({
           {priceHistory.slice(-50).map((_, index) => {
             const dataPoint = chartData[index]
             if (!dataPoint) return null
-            
-            const maxVol = Math.max(...chartData.map(d => Math.max(d.buyVol, d.sellVol)))
+
+            const maxVol = Math.max(
+              ...chartData.map((d) => Math.max(d.buyVol, d.sellVol))
+            )
             const buyHeight = maxVol > 0 ? (dataPoint.buyVol / maxVol) * 60 : 0
-            const sellHeight = maxVol > 0 ? (dataPoint.sellVol / maxVol) * 60 : 0
+            const sellHeight =
+              maxVol > 0 ? (dataPoint.sellVol / maxVol) * 60 : 0
 
             return (
-              <div key={`price-bar-${index}-${dataPoint.tick}`} className="flex flex-col items-center space-y-1" style={{ width: '6px' }}>
+              <div
+                key={`price-bar-${index}-${dataPoint.tick}`}
+                className="flex flex-col items-center space-y-1"
+                style={{ width: '6px' }}
+              >
                 <motion.div
                   className="rounded-t bg-green-500/60"
                   style={{ height: `${buyHeight}px`, width: '3px' }}
@@ -225,15 +251,15 @@ const RealTimePriceChart = ({
       {/* 价格统计汇总 */}
       <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-700">
         <div className="text-center">
-          <p className="text-sm text-gray-400">24h High</p>
+          <p className="text-sm text-gray-400">1d High</p>
           <p className="font-bold text-green-400">${maxPrice.toFixed(2)}</p>
         </div>
         <div className="text-center">
-          <p className="text-sm text-gray-400">24h Low</p>
+          <p className="text-sm text-gray-400">1d Low</p>
           <p className="font-bold text-red-400">${minPrice.toFixed(2)}</p>
         </div>
         <div className="text-center">
-          <p className="text-sm text-gray-400">Avg Price</p>
+          <p className="text-sm text-gray-400">1d Avg</p>
           <p className="font-bold text-yellow-400">${avgPrice.toFixed(2)}</p>
         </div>
       </div>

@@ -5,6 +5,7 @@ import Button from '../components/Button'
 import Card from '../components/Card'
 import PriceChart from '../components/PriceChart'
 import MessageFeed from '../components/MessageFeed'
+import GameResultModal from '../components/GameResultModal'
 import { useAppContext } from '../contexts/AppContext'
 import { gameAPI, createGameWebSocket } from '../utils/api'
 
@@ -34,7 +35,7 @@ interface GameData {
 const CombinedGamePage = () => {
   const { gameId } = useParams()
   const navigate = useNavigate()
-  const { games, marketData } = useAppContext()
+  const { games } = useAppContext()
   const game = games.find((g) => g.id === gameId)
 
   // Tab状态管理
@@ -51,8 +52,10 @@ const CombinedGamePage = () => {
   const [_buyVolume, setBuyVolume] = useState(0)
   const [_sellVolume, setSellVolume] = useState(0)
   const [_netFlow, setNetFlow] = useState(0)
+  const [wsTickData, setWsTickData] = useState<PerpTickData[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const wsRef = useRef<WebSocket | null>(null)
+  const [showGameResultModal, setShowGameResultModal] = useState(false)
 
   // Main match states (从原来的GameDetailPage复制)
   const [agentRankings, setAgentRankings] = useState([
@@ -299,7 +302,7 @@ const CombinedGamePage = () => {
         setCurrentPrice(response.data.game.price || 100)
         setCurrentTick(response.data.game.tick || 0)
 
-        const initialHistory = Array(50).fill(response.data.game.price || 100)
+        const initialHistory = Array(10).fill(response.data.game.price || 100)
         setMarketHistory(initialHistory)
       } catch (error) {
         console.error('Failed to load game data:', error)
@@ -330,16 +333,86 @@ const CombinedGamePage = () => {
             const data: PerpTickData = JSON.parse(event.data)
             console.log('Received tick data:', data)
 
+            // 当tick数达到maxTick时关闭WebSocket连接
+            const maxTick = 15 // 最大tick数
+            if (data.tick >= maxTick) {
+              console.log(`达到最大tick数 ${maxTick}，关闭WebSocket连接`)
+              setShowGameResultModal(true)
+              ws.close()
+              setIsConnected(false)
+              return
+            }
+
+            // 更新当前状态
             setCurrentPrice(data.price)
             setCurrentTick(data.tick)
             setBuyVolume(data.buyVol)
             setSellVolume(data.sellVol)
             setNetFlow(data.net)
 
-            setMarketHistory((prev) => [...prev, data.price].slice(-100))
+            // 更新价格历史（传统方式）
+            setMarketHistory((prev) => [...prev, data.price].slice(-10))
 
+            // 保存所有tick数据用于K线图
+            setWsTickData((prev) => {
+              // 保留所有历史数据，不做截断
+              return [...prev, data]
+            })
+
+            // 处理公告消息
             if (data.announcements && data.announcements.length > 0) {
               const timestamp = Date.now()
+
+              // 检查公告中是否有K线历史数据
+              data.announcements.forEach((ann) => {
+                if (
+                  ann.text &&
+                  (ann.text.includes('HISTORICAL_PRICES:') ||
+                    ann.text.includes('KLINE_DATA:') ||
+                    ann.text.includes('MARKET_HISTORY:'))
+                ) {
+                  try {
+                    // 尝试从公告中提取历史K线数据
+                    console.log(
+                      'Detected historical data in announcement:',
+                      ann.text
+                    )
+
+                    // 尝试提取JSON部分
+                    const match = ann.text.match(/\{[\s\S]*\}|\[[\s\S]*\]/)
+                    if (match) {
+                      const historicalData = JSON.parse(match[0])
+                      console.log('Parsed historical data:', historicalData)
+
+                      // 如果是数组格式的历史数据
+                      if (Array.isArray(historicalData)) {
+                        // 转换格式并保存到wsTickData中
+                        const convertedData: PerpTickData[] =
+                          historicalData.map((item: any) => ({
+                            tick: item.tick || 0,
+                            price: item.price || item.close || 0,
+                            buyVol: item.buyVol || item.volume / 2 || 0,
+                            sellVol: item.sellVol || item.volume / 2 || 0,
+                            net: item.net || 0,
+                            announcements: []
+                          }))
+
+                        // 设置历史数据，保留所有数据点
+                        setWsTickData(convertedData)
+                        console.log(
+                          `Loaded ${convertedData.length} historical data points from announcement`
+                        )
+                      }
+                    }
+                  } catch (error) {
+                    console.error(
+                      'Error parsing historical data from announcement:',
+                      error
+                    )
+                  }
+                }
+              })
+
               const newMessages = data.announcements.map((ann, index) => ({
                 id: `${data.tick}-${ann.agentId}-${index}-${timestamp}`,
                 senderId: ann.agentId,
@@ -350,7 +423,7 @@ const CombinedGamePage = () => {
                 stance: ann.stance || 'neutral'
               }))
               setRealTimeMessages((prev) =>
-                [...newMessages, ...prev].slice(0, 50)
+                [...newMessages, ...prev].slice(0, 10)
               )
             }
           } catch (error) {
@@ -793,7 +866,11 @@ const CombinedGamePage = () => {
 
               {activeDataTab === 'market' && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <PriceChart data={marketData} />
+                  <PriceChart
+                    wsData={wsTickData}
+                    onMaxTickReached={() => setShowGameResultModal(true)}
+                    maxTick={15}
+                  />
                 </motion.div>
               )}
 
@@ -1475,7 +1552,11 @@ const CombinedGamePage = () => {
                     <h3 className="mb-4 text-lg font-bold">
                       Real-time Market Chart
                     </h3>
-                    <PriceChart data={marketData} />
+                    <PriceChart
+                      wsData={wsTickData}
+                      onMaxTickReached={() => setShowGameResultModal(true)}
+                      maxTick={15}
+                    />
                   </Card>
 
                   {/* 代理排行榜 */}
@@ -1568,6 +1649,13 @@ const CombinedGamePage = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* 游戏结果模态框 */}
+      <GameResultModal
+        isOpen={showGameResultModal}
+        onClose={() => setShowGameResultModal(false)}
+        rankings={agentRankings}
+      />
     </div>
   )
 }
