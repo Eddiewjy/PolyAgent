@@ -147,6 +147,17 @@ export const mockUser: User = {
 // Mock Games
 export const mockGames: Game[] = [
   {
+    id: 'main-match',
+    name: 'Perp Bot Trading Match',
+    status: GameStatus.ACTIVE,
+    participants: 5,
+    maxParticipants: 10,
+    prize: 2500,
+    startTime: '2024-08-23T00:00:00Z',
+    endTime: '2024-08-24T00:00:00Z',
+    duration: 1440 // 24 hours
+  },
+  {
     id: 'game1',
     name: 'Crypto Frenzy #128',
     status: GameStatus.ACTIVE,

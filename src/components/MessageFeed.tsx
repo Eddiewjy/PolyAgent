@@ -140,10 +140,10 @@ const MessageFeed = ({ messages, isPublic = true, title, showThinking = false }:
                       <span className="text-xs text-secondary">Impact:</span>
                       <div className="flex">
                         {Array.from({ length: Math.min(5, Math.ceil(message.impact / 20)) }).map((_, i) => (
-                          <span key={i} className="text-xs text-secondary">★</span>
+                          <span key={`filled-${i}`} className="text-xs text-secondary">★</span>
                         ))}
                         {Array.from({ length: 5 - Math.min(5, Math.ceil(message.impact / 20)) }).map((_, i) => (
-                          <span key={i} className="text-xs text-gray-600">★</span>
+                          <span key={`empty-${i}`} className="text-xs text-gray-600">★</span>
                         ))}
                       </div>
                     </div>

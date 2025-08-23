@@ -27,11 +27,10 @@ interface PriceChartProps {
 }
 
 const PriceChart = ({ data }: PriceChartProps) => {
-  const [selectedCoin, setSelectedCoin] = useState(data[0]?.symbol || '');
   const [timeframe, setTimeframe] = useState('1d'); // 1h, 4h, 1d, 1w
 
-  // Get selected cryptocurrency data
-  const selectedData = data.find(d => d.symbol === selectedCoin) || data[0];
+  // Only use USDT data
+  const selectedData = data.find(d => d.symbol === 'USDT') || data[0];
   
   // Price change color
   const priceChangeColor = 
@@ -141,22 +140,7 @@ const PriceChart = ({ data }: PriceChartProps) => {
   return (
     <div className="p-4 border bg-surface rounded-xl border-gray-700/30">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold">Market Data</h3>
-        <div className="flex gap-2">
-          {data.map(coin => (
-            <button
-              key={coin.symbol}
-              className={`px-2 py-1 text-xs rounded-md transition-all ${
-                selectedCoin === coin.symbol
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-              onClick={() => setSelectedCoin(coin.symbol)}
-            >
-              {coin.symbol}
-            </button>
-          ))}
-        </div>
+        <h3 className="text-lg font-bold">USDT Market Data</h3>
       </div>
 
       <div className="flex items-end justify-between mb-4">
