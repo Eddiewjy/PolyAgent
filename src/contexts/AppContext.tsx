@@ -12,12 +12,12 @@ import {
 import { gameAPI } from '../utils/api'
 
 // 定义后端排行榜接口数据类型
-interface LeaderboardApiEntry {
-  id: string
-  equity: number
-  realized: number
-  volume: number
-}
+// interface LeaderboardApiEntry {
+//   id: string
+//   equity: number
+//   realized: number
+//   volume: number
+// }
 
 interface AppContextType {
   user: User | null
@@ -49,7 +49,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [games] = useState<Game[]>(mockGames)
   const [activeGame, setActiveGame] = useState<Game | null>(null)
   const [marketData, setMarketData] = useState<MarketData[]>(mockMarketData)
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(mockLeaderboard)
+  const [leaderboard, setLeaderboard] =
+    useState<LeaderboardEntry[]>(mockLeaderboard)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Create a new agent
@@ -180,20 +181,22 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await gameAPI.getLeaderboard(limit)
       const apiData = response.data
-      
+
       // 将后端数据转换为前端需要的格式
       if (Array.isArray(apiData)) {
-        const transformedData: LeaderboardEntry[] = apiData.map((item, index) => ({
-          rank: index + 1,
-          agentId: item.id,
-          agentName: item.id.replace('-', ' ').toUpperCase(),
-          avatar: getAvatarByAgentId(item.id),
-          score: item.equity,
-          category: 'PROFIT', // 所有排行榜数据都属于利润类别
-          realized: item.realized, // 添加已实现收益
-          volume: item.volume     // 添加成交量
-        }))
-        
+        const transformedData: LeaderboardEntry[] = apiData.map(
+          (item, index) => ({
+            rank: index + 1,
+            agentId: item.id,
+            agentName: item.id.replace('-', ' ').toUpperCase(),
+            avatar: getAvatarByAgentId(item.id),
+            score: item.equity,
+            category: 'PROFIT', // 所有排行榜数据都属于利润类别
+            realized: item.realized, // 添加已实现收益
+            volume: item.volume // 添加成交量
+          })
+        )
+
         setLeaderboard(transformedData)
       }
     } catch (error) {
@@ -232,12 +235,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // 初始加载时获取排行榜数据
   useEffect(() => {
     fetchLeaderboard()
-    
+
     // 每30秒刷新一次排行榜
     const interval = setInterval(() => {
       fetchLeaderboard()
     }, 30000)
-    
+
     return () => clearInterval(interval)
   }, [])
 
