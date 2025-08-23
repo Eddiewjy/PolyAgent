@@ -1650,11 +1650,10 @@ const CombinedGamePage = () => {
         )}
       </AnimatePresence>
 
-      {/* 游戏结果模态框 */}
+      {/* 游戏结果模态框 - 显示后端排行榜数据 */}
       <GameResultModal
         isOpen={showGameResultModal}
         onClose={() => setShowGameResultModal(false)}
-        rankings={agentRankings}
       />
     </div>
   )

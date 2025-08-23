@@ -11,6 +11,14 @@ import {
 } from '../utils/mockData'
 import { gameAPI } from '../utils/api'
 
+// 定义后端排行榜接口数据类型
+interface LeaderboardApiEntry {
+  id: string
+  equity: number
+  realized: number
+  volume: number
+}
+
 interface AppContextType {
   user: User | null
   games: Game[]
@@ -31,6 +39,7 @@ interface AppContextType {
   ) => Promise<string>
   startBotGame: (gameId: string) => Promise<void>
   addAgentToGame: (gameId: string, agentConfig: any) => Promise<void>
+  fetchLeaderboard: (limit?: number) => Promise<void> // 新增：获取排行榜数据
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -40,7 +49,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [games] = useState<Game[]>(mockGames)
   const [activeGame, setActiveGame] = useState<Game | null>(null)
   const [marketData, setMarketData] = useState<MarketData[]>(mockMarketData)
-  const [leaderboard] = useState<LeaderboardEntry[]>(mockLeaderboard)
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(mockLeaderboard)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Create a new agent
@@ -165,6 +174,45 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  // 获取排行榜数据
+  const fetchLeaderboard = async (limit = 10) => {
+    setIsLoading(true)
+    try {
+      const response = await gameAPI.getLeaderboard(limit)
+      const apiData = response.data
+      
+      // 将后端数据转换为前端需要的格式
+      if (Array.isArray(apiData)) {
+        const transformedData: LeaderboardEntry[] = apiData.map((item, index) => ({
+          rank: index + 1,
+          agentId: item.id,
+          agentName: item.id.replace('-', ' ').toUpperCase(),
+          avatar: getAvatarByAgentId(item.id),
+          score: item.equity,
+          category: 'PROFIT', // 所有排行榜数据都属于利润类别
+          realized: item.realized, // 添加已实现收益
+          volume: item.volume     // 添加成交量
+        }))
+        
+        setLeaderboard(transformedData)
+      }
+    } catch (error) {
+      console.error('Failed to fetch leaderboard:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // 根据agent ID获取头像
+  const getAvatarByAgentId = (id: string): string => {
+    if (id.includes('cons')) return '/avatars/conservative.png'
+    if (id.includes('aggr') || id.includes('bull')) return '/avatars/bull.png'
+    if (id.includes('chaos')) return '/avatars/chaotic.png'
+    if (id.includes('info')) return '/avatars/informative.png'
+    if (id.includes('betray')) return '/avatars/betrayer.png'
+    return '/avatars/top1.png' // 默认头像
+  }
+
   // Mock market data updates
   useEffect(() => {
     const interval = setInterval(() => {
@@ -178,6 +226,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       )
     }, 5000)
 
+    return () => clearInterval(interval)
+  }, [])
+
+  // 初始加载时获取排行榜数据
+  useEffect(() => {
+    fetchLeaderboard()
+    
+    // 每30秒刷新一次排行榜
+    const interval = setInterval(() => {
+      fetchLeaderboard()
+    }, 30000)
+    
     return () => clearInterval(interval)
   }, [])
 
@@ -197,7 +257,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         isLoading,
         createBotGame,
         startBotGame,
-        addAgentToGame
+        addAgentToGame,
+        fetchLeaderboard
       }}
     >
       {children}

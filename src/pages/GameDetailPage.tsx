@@ -826,14 +826,16 @@ const GameDetailPage = () => {
 
           {activeTab === 'market' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <PriceChart wsData={marketData.map((item, index) => ({
-                tick: index,
-                price: item.price,
-                buyVol: item.volume * 0.6,
-                sellVol: item.volume * 0.4,
-                net: item.volume * 0.2,
-                announcements: []
-              }))} />
+              <PriceChart
+                wsData={marketData.map((item, index) => ({
+                  tick: index,
+                  price: item.price,
+                  buyVol: item.volume * 0.6,
+                  sellVol: item.volume * 0.4,
+                  net: item.volume * 0.2,
+                  announcements: []
+                }))}
+              />
             </motion.div>
           )}
 

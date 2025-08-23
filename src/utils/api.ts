@@ -81,6 +81,9 @@ export const gameAPI = {
 
   // 重置游戏 - 使用perp-bot-mvp的reset接口
   resetGame: (_gameId: string) => api.post('/match/reset'),
+  
+  // 获取排行榜数据 - 使用perp-bot-mvp的leaderboard接口
+  getLeaderboard: (limit = 10) => api.get(`/match/leaderboard?n=${limit}`),
 
   // 获取游戏消息 (模拟数据)
   getMessages: (_gameId: string) => Promise.resolve({ data: [] }),

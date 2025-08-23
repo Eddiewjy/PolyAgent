@@ -158,6 +158,8 @@ export interface LeaderboardEntry {
   avatar: string;
   score: number;
   category: LeaderboardCategoryValue;
+  realized?: number;  // 已实现收益
+  volume?: number;    // 成交量
 }
 
 export const LeaderboardCategory = {
