@@ -6,7 +6,6 @@ import Card from '../components/Card'
 import MessageFeed from '../components/MessageFeed'
 import RealTimePriceChart from '../components/RealTimePriceChart'
 import { gameAPI, createGameWebSocket } from '../utils/api'
-import { useAppContext } from '../contexts/AppContext'
 
 interface GameData {
   gameSession: any
@@ -45,7 +44,7 @@ const RealTimeGamePage = () => {
   const [sellVolume, setSellVolume] = useState(0)
   const [netFlow, setNetFlow] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
-  const [userAgent, setUserAgent] = useState<any>(null)
+  const [userAgent] = useState<any>(null)
 
   const wsRef = useRef<WebSocket | null>(null)
 
@@ -60,7 +59,7 @@ const RealTimeGamePage = () => {
         setGameData(response.data.game)
         setCurrentPrice(response.data.game.price || 100)
         setCurrentTick(response.data.game.tick || 0)
-        
+
         // 初始化历史数据 - 用当前价格填充
         const initialHistory = Array(50).fill(response.data.game.price || 100)
         setMarketHistory(initialHistory)
@@ -92,14 +91,14 @@ const RealTimeGamePage = () => {
           try {
             const data: PerpTickData = JSON.parse(event.data)
             console.log('Received tick data:', data)
-            
+
             // 更新价格和tick数据
             setCurrentPrice(data.price)
             setCurrentTick(data.tick)
             setBuyVolume(data.buyVol)
             setSellVolume(data.sellVol)
             setNetFlow(data.net)
-            
+
             // 更新价格历史
             setMarketHistory((prev) => [...prev, data.price].slice(-100))
 
@@ -145,8 +144,6 @@ const RealTimeGamePage = () => {
       }
     }
   }, [gameId, gameData])
-
-
 
   if (isLoading) {
     return (
@@ -207,12 +204,11 @@ const RealTimeGamePage = () => {
               />
             </div>
             <p className="text-gray-400">
-              {gameData.gameSession.participants.length} bots • Tick: {currentTick}
+              {gameData.gameSession.participants.length} bots • Tick:{' '}
+              {currentTick}
             </p>
           </div>
         </div>
-
-        
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -288,7 +284,9 @@ const RealTimeGamePage = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Connection:</span>
-                <span className={isConnected ? 'text-green-400' : 'text-red-400'}>
+                <span
+                  className={isConnected ? 'text-green-400' : 'text-red-400'}
+                >
                   {isConnected ? 'Connected' : 'Disconnected'}
                 </span>
               </div>

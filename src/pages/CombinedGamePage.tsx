@@ -45,12 +45,12 @@ const CombinedGamePage = () => {
   const [gameData, setGameData] = useState<GameData | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const [realTimeMessages, setRealTimeMessages] = useState<any[]>([])
-  const [marketHistory, setMarketHistory] = useState<number[]>([])
-  const [currentPrice, setCurrentPrice] = useState(100)
+  const [_marketHistory, setMarketHistory] = useState<number[]>([])
+  const [_currentPrice, setCurrentPrice] = useState(100)
   const [currentTick, setCurrentTick] = useState(0)
-  const [buyVolume, setBuyVolume] = useState(0)
-  const [sellVolume, setSellVolume] = useState(0)
-  const [netFlow, setNetFlow] = useState(0)
+  const [_buyVolume, setBuyVolume] = useState(0)
+  const [_sellVolume, setSellVolume] = useState(0)
+  const [_netFlow, setNetFlow] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const wsRef = useRef<WebSocket | null>(null)
 
@@ -170,7 +170,7 @@ const CombinedGamePage = () => {
     }
   ])
 
-  const [messages, setMessages] = useState([
+  const [messages] = useState([
     {
       id: 'msg1',
       senderId: 'BullRunner',
@@ -298,7 +298,7 @@ const CombinedGamePage = () => {
         setGameData(response.data.game)
         setCurrentPrice(response.data.game.price || 100)
         setCurrentTick(response.data.game.tick || 0)
-        
+
         const initialHistory = Array(50).fill(response.data.game.price || 100)
         setMarketHistory(initialHistory)
       } catch (error) {
@@ -329,13 +329,13 @@ const CombinedGamePage = () => {
           try {
             const data: PerpTickData = JSON.parse(event.data)
             console.log('Received tick data:', data)
-            
+
             setCurrentPrice(data.price)
             setCurrentTick(data.tick)
             setBuyVolume(data.buyVol)
             setSellVolume(data.sellVol)
             setNetFlow(data.net)
-            
+
             setMarketHistory((prev) => [...prev, data.price].slice(-100))
 
             if (data.announcements && data.announcements.length > 0) {
@@ -349,7 +349,9 @@ const CombinedGamePage = () => {
                 impact: 50,
                 stance: ann.stance || 'neutral'
               }))
-              setRealTimeMessages((prev) => [...newMessages, ...prev].slice(0, 50))
+              setRealTimeMessages((prev) =>
+                [...newMessages, ...prev].slice(0, 50)
+              )
             }
           } catch (error) {
             console.error('Error parsing WebSocket message:', error)
@@ -708,7 +710,8 @@ const CombinedGamePage = () => {
             )}
           </div>
           <p className="text-gray-400">
-            {game.participants} participants • ${game.prize.toLocaleString()} prize pool
+            {game.participants} participants • ${game.prize.toLocaleString()}{' '}
+            prize pool
             {activeGameTab === 'real-time' && ` • Tick: ${currentTick}`}
           </p>
         </div>
@@ -878,7 +881,9 @@ const CombinedGamePage = () => {
                           className="pb-3 border-b border-gray-700/50 last:border-b-0"
                         >
                           <div className="flex items-start justify-between mb-1">
-                            <span className="font-medium">{activity.agentId}</span>
+                            <span className="font-medium">
+                              {activity.agentId}
+                            </span>
                             <span className="text-xs text-gray-400">
                               {new Date(activity.timestamp).toLocaleTimeString(
                                 undefined,
@@ -1011,7 +1016,9 @@ const CombinedGamePage = () => {
                             {agent.isUser ? (
                               <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
                             ) : null}
-                            <span className={agent.isUser ? 'text-primary' : ''}>
+                            <span
+                              className={agent.isUser ? 'text-primary' : ''}
+                            >
                               {agent.name}
                             </span>
                           </div>
@@ -1036,12 +1043,15 @@ const CombinedGamePage = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-3 gap-4 pt-3 mt-3 text-center border-t border-gray-700/30">
                   <div className="p-2 rounded-lg bg-gray-800/50">
                     <p className="text-xs text-gray-400">Total Trades</p>
                     <p className="text-sm font-medium">
-                      {agentRankings.reduce((sum, agent) => sum + agent.trades, 0)}
+                      {agentRankings.reduce(
+                        (sum, agent) => sum + agent.trades,
+                        0
+                      )}
                     </p>
                   </div>
                   <div className="p-2 rounded-lg bg-gray-800/50">
@@ -1100,7 +1110,9 @@ const CombinedGamePage = () => {
                         <div className="flex items-center gap-2">
                           <motion.p
                             className="font-medium"
-                            animate={{ scale: showBalanceChange ? [1, 1.1, 1] : 1 }}
+                            animate={{
+                              scale: showBalanceChange ? [1, 1.1, 1] : 1
+                            }}
                             transition={{ duration: 0.5 }}
                           >
                             ${cashBalance.toLocaleString()}
@@ -1127,8 +1139,10 @@ const CombinedGamePage = () => {
                                     : 'bg-red-500/20 text-red-400'
                                 }`}
                               >
-                                {showBalanceChange.type === 'increase' ? '+' : '-'}$
-                                {showBalanceChange.amount}
+                                {showBalanceChange.type === 'increase'
+                                  ? '+'
+                                  : '-'}
+                                ${showBalanceChange.amount}
                               </motion.span>
                             )}
                           </AnimatePresence>
@@ -1138,7 +1152,9 @@ const CombinedGamePage = () => {
                         <p className="text-xs text-gray-400">Portfolio Value</p>
                         <motion.p
                           className="font-medium"
-                          animate={{ scale: showBalanceChange ? [1, 1.05, 1] : 1 }}
+                          animate={{
+                            scale: showBalanceChange ? [1, 1.05, 1] : 1
+                          }}
                           transition={{ duration: 0.5, delay: 0.2 }}
                         >
                           ${portfolioValue.toLocaleString()}
@@ -1250,7 +1266,8 @@ const CombinedGamePage = () => {
                         }}
                         transition={{ duration: 0.5 }}
                       >
-                        {Math.max(0, 1000 - Math.floor(Math.random() * 200))} USDT
+                        {Math.max(0, 1000 - Math.floor(Math.random() * 200))}{' '}
+                        USDT
                       </motion.div>
                     </div>
                   </div>
@@ -1266,7 +1283,8 @@ const CombinedGamePage = () => {
                         balanceHistory.length > 0 &&
                         ((balanceHistory[balanceHistory.length - 1].type ===
                           'increase' &&
-                          balanceHistory[balanceHistory.length - 1].amount > 800) ||
+                          balanceHistory[balanceHistory.length - 1].amount >
+                            800) ||
                           (balanceHistory[balanceHistory.length - 1].type ===
                             'decrease' &&
                             balanceHistory[balanceHistory.length - 1].amount >
@@ -1317,7 +1335,8 @@ const CombinedGamePage = () => {
                             Math.min(
                               95,
                               100 -
-                                ((agentRankings.find((a) => a.isUser)?.id || 3) /
+                                ((agentRankings.find((a) => a.isUser)?.id ||
+                                  3) /
                                   agentRankings.length) *
                                   100
                             )
@@ -1344,16 +1363,18 @@ const CombinedGamePage = () => {
                       </span>
                     </div>
                     <div className="w-full h-40 p-2 overflow-auto text-sm text-gray-300 border rounded-md bg-gray-800/50 border-gray-700/50">
-                      Maximize profits with aggressive trading strategy. Focus on
-                      momentum stocks and quick profits. Seek opportunities to
-                      influence market sentiment through strategic communications
-                      and collaborations.
+                      Maximize profits with aggressive trading strategy. Focus
+                      on momentum stocks and quick profits. Seek opportunities
+                      to influence market sentiment through strategic
+                      communications and collaborations.
                     </div>
                     <div className="flex items-center justify-between mt-1">
                       <span className="text-xs text-gray-500">
                         Last updated: 2h ago
                       </span>
-                      <span className="text-xs text-gray-500">Win rate: 65%</span>
+                      <span className="text-xs text-gray-500">
+                        Win rate: 65%
+                      </span>
                     </div>
                   </div>
 
@@ -1418,7 +1439,9 @@ const CombinedGamePage = () => {
                         </div>
                         <span>
                           Next trade in:{' '}
-                          <span className="font-medium text-white">~2 minutes</span>
+                          <span className="font-medium text-white">
+                            ~2 minutes
+                          </span>
                         </span>
                       </div>
                     </div>
@@ -1449,7 +1472,9 @@ const CombinedGamePage = () => {
                 <div className="space-y-6 lg:col-span-2">
                   {/* 实时价格图表 - 使用K线图 */}
                   <Card>
-                    <h3 className="mb-4 text-lg font-bold">Real-time Market Chart</h3>
+                    <h3 className="mb-4 text-lg font-bold">
+                      Real-time Market Chart
+                    </h3>
                     <PriceChart data={marketData} />
                   </Card>
 
@@ -1470,10 +1495,14 @@ const CombinedGamePage = () => {
                           transition={{ delay: index * 0.1 }}
                         >
                           <div className="flex items-center gap-3">
-                            <span className="text-lg font-bold">#{index + 1}</span>
+                            <span className="text-lg font-bold">
+                              #{index + 1}
+                            </span>
                             <div>
                               <p className="font-medium">{agent.name}</p>
-                              <p className="text-sm text-gray-400">{agent.type}</p>
+                              <p className="text-sm text-gray-400">
+                                {agent.type}
+                              </p>
                             </div>
                           </div>
                           <div className="text-right">
@@ -1486,7 +1515,9 @@ const CombinedGamePage = () => {
                           </div>
                         </motion.div>
                       )) || (
-                        <p className="text-center text-gray-400">No agents data available</p>
+                        <p className="text-center text-gray-400">
+                          No agents data available
+                        </p>
                       )}
                     </div>
                   </Card>
@@ -1504,7 +1535,9 @@ const CombinedGamePage = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Active Bots:</span>
-                        <span>{gameData?.gameSession?.participants?.length || 0}</span>
+                        <span>
+                          {gameData?.gameSession?.participants?.length || 0}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Current Tick:</span>
@@ -1512,7 +1545,11 @@ const CombinedGamePage = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Connection:</span>
-                        <span className={isConnected ? 'text-green-400' : 'text-red-400'}>
+                        <span
+                          className={
+                            isConnected ? 'text-green-400' : 'text-red-400'
+                          }
+                        >
                           {isConnected ? 'Connected' : 'Disconnected'}
                         </span>
                       </div>

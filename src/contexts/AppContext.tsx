@@ -127,7 +127,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true)
     try {
       const response = await gameAPI.createGame(name, maxParticipants, duration)
-      return response.data.gameId
+      return response.data.id
     } catch (error) {
       console.error('Failed to create bot game:', error)
       throw error
