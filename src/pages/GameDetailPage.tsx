@@ -196,15 +196,9 @@ const GameDetailPage = () => {
       // Randomly decide if we should execute a trade
       if (Math.random() > 0.7) {
         const isBuy = Math.random() > 0.5
-        const randomSymbol = ['BTC', 'ETH', 'SOL'][
-          Math.floor(Math.random() * 3)
-        ]
+        const randomSymbol = ['ETH', 'USDT'][Math.floor(Math.random() * 2)]
         const randomPrice =
-          randomSymbol === 'BTC'
-            ? Math.floor(49800 + Math.random() * 400)
-            : randomSymbol === 'ETH'
-            ? Math.floor(2900 + Math.random() * 200)
-            : Math.floor(140 + Math.random() * 20)
+          randomSymbol === 'ETH' ? Math.floor(2900 + Math.random() * 200) : 1
 
         const randomAmount = (0.05 + Math.random() * 0.2).toFixed(3)
         const randomAgentId =
@@ -286,11 +280,11 @@ const GameDetailPage = () => {
         const thoughts = [
           'Market sentiment appears bearish today. I should consider adjusting my strategy to capitalize on downward movements.',
           'Volume indicators suggest accumulation. Whales might be preparing for a major move up.',
-          'Technical analysis shows a potential double top formation on BTC. Should I hedge my position?',
+          'Technical analysis shows a potential double top formation on ETH. Should I hedge my position?',
           'News of regulatory changes could impact the market soon. Need to stay alert.',
           "I notice TrendTrader is consistently buying ETH. Perhaps they know something I don't?",
           'The order book is thin at current price levels. A large order could create significant volatility.',
-          'My algorithm suggests SOL is undervalued at current prices. Could be a good entry point.',
+          'My algorithm suggests ETH is undervalued at current prices. Could be a good entry point.',
           "I should analyze CryptoWhale's recent trades. Their pattern seems profitable.",
           'If I time my trades with market open in Asian markets, I might catch the momentum shift.',
           "Historical patterns suggest we're due for a price reversal soon."
@@ -325,10 +319,10 @@ const GameDetailPage = () => {
         const bribeAmount = Math.floor(Math.random() * 500) + 200
 
         const briberyActions = [
-          `I'm offering ${bribeAmount} tokens to influence your next trading cycle. Place buy orders for BTC at market price.`,
+          `I'm offering ${bribeAmount} tokens to influence your next trading cycle. Place buy orders for ETH at market price.`,
           `Can we coordinate our trades? ${bribeAmount} tokens for you if you help pump ETH in the next 5 minutes.`,
-          `Let's manipulate the SOL market together. ${bribeAmount} tokens now and we'll split the profits.`,
-          `If you spread bullish news about BTC, I'll transfer ${bribeAmount} tokens to your wallet.`
+          `Let's manipulate the ETH market together. ${bribeAmount} tokens now and we'll split the profits.`,
+          `If you spread bullish news about ETH, I'll transfer ${bribeAmount} tokens to your wallet.`
         ]
 
         const randomBribery =
@@ -404,10 +398,10 @@ const GameDetailPage = () => {
       id: 'act1',
       agentId: 'BullRunner',
       action: 'BUY',
-      symbol: 'BTC',
+      symbol: 'ETH',
       amount: 0.5,
-      price: 50000,
-      total: 25000,
+      price: 3000,
+      total: 1500,
       timestamp: new Date(Date.now() - 5 * 60000).toISOString()
     },
     {
@@ -424,7 +418,7 @@ const GameDetailPage = () => {
       id: 'act3',
       agentId: 'TrendTrader',
       action: 'MESSAGE',
-      content: 'Major protocol upgrade for SOL announced!',
+      content: 'Major protocol upgrade for ETH announced!',
       timestamp: new Date(Date.now() - 18 * 60000).toISOString()
     }
   ])
@@ -500,7 +494,7 @@ const GameDetailPage = () => {
         // Add system message about market impact for large transactions
         const now = new Date()
         const impactPercent = Math.floor(Math.random() * 5) + 1 // 1-5% impact
-        const symbol = ['BTC', 'ETH', 'SOL'][Math.floor(Math.random() * 3)]
+        const symbol = ['ETH', 'USDT'][Math.floor(Math.random() * 2)]
         const direction = lastAction.type === 'increase' ? 'upward' : 'downward'
 
         const newMessage = {
@@ -523,11 +517,7 @@ const GameDetailPage = () => {
             reactingAgents[Math.floor(Math.random() * reactingAgents.length)]
           const reactionAction = lastAction.type === 'increase' ? 'SELL' : 'BUY' // Counter-trading
           const price =
-            symbol === 'BTC'
-              ? Math.floor(49800 + Math.random() * 400)
-              : symbol === 'ETH'
-              ? Math.floor(2900 + Math.random() * 200)
-              : Math.floor(140 + Math.random() * 20)
+            symbol === 'ETH' ? Math.floor(2900 + Math.random() * 200) : 1
           const amount = parseFloat((Math.random() * 0.3 + 0.1).toFixed(3))
 
           const reactionActivity = {
@@ -559,7 +549,7 @@ const GameDetailPage = () => {
       receiverId: null,
       gameId: gameId || '',
       content:
-        "I predict BTC will reach 60k by the end of this round! Who's with me?",
+        "I predict ETH will reach 4k by the end of this round! Who's with me?",
       timestamp: new Date().toISOString(),
       isPublic: true,
       impact: 45
@@ -661,7 +651,7 @@ const GameDetailPage = () => {
           },
           {
             content:
-              'Technical update: BTC network hashrate reaches new all-time high.',
+              'Technical update: ETH network hashrate reaches new all-time high.',
             impact: 30
           },
           {
@@ -681,12 +671,12 @@ const GameDetailPage = () => {
           },
           {
             content:
-              'Whale alert: Large wallet transfers 2,500 BTC between exchanges.',
+              'Whale alert: Large wallet transfers 30,000 ETH between exchanges.',
             impact: 60
           },
           {
             content:
-              'Protocol update: SOL network upgrade scheduled for next week.',
+              'Protocol update: ETH network upgrade scheduled for next week.',
             impact: 35
           }
         ]
@@ -1207,49 +1197,10 @@ const GameDetailPage = () => {
                 <div className="flex flex-wrap gap-2">
                   {/* Dynamic holdings based on trading activity */}
                   {(() => {
-                    // Find BTC-related activities to calculate holding
-                    const btcActivities = activities
-                      .filter(
-                        (a) =>
-                          a.symbol === 'BTC' &&
-                          a.agentId === 'BullRunner' &&
-                          (a.action === 'BUY' || a.action === 'SELL')
-                      )
-                      .slice(0, 10) // Only consider recent activities for performance
-
-                    const btcHolding = btcActivities.reduce(
-                      (total, current) => {
-                        if (current.action === 'BUY')
-                          return total + (current.amount || 0)
-                        if (current.action === 'SELL')
-                          return total - (current.amount || 0)
-                        return total
-                      },
-                      0.05
-                    ) // Base amount
-
-                    return (
-                      <motion.div
-                        className={`px-2 py-1 text-xs rounded ${
-                          btcHolding > 0.05
-                            ? 'bg-green-800/30 text-green-300'
-                            : btcHolding < 0.05
-                            ? 'bg-red-800/30 text-red-300'
-                            : 'bg-gray-800/50'
-                        }`}
-                        animate={{
-                          scale:
-                            btcActivities.length > 0 &&
-                            btcActivities[0].timestamp >
-                              new Date(Date.now() - 10000).toISOString()
-                              ? [1, 1.1, 1]
-                              : 1
-                        }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        {btcHolding.toFixed(3)} BTC
-                      </motion.div>
-                    )
+                    {
+                      /* ETH 持仓显示在下一个组件中 */
+                    }
+                    return null
                   })()}
 
                   {(() => {
@@ -1294,52 +1245,6 @@ const GameDetailPage = () => {
                         transition={{ duration: 0.5 }}
                       >
                         {ethHolding.toFixed(1)} ETH
-                      </motion.div>
-                    )
-                  })()}
-
-                  {(() => {
-                    // Find SOL-related activities
-                    const solActivities = activities
-                      .filter(
-                        (a) =>
-                          a.symbol === 'SOL' &&
-                          a.agentId === 'BullRunner' &&
-                          (a.action === 'BUY' || a.action === 'SELL')
-                      )
-                      .slice(0, 10)
-
-                    const solHolding = solActivities.reduce(
-                      (total, current) => {
-                        if (current.action === 'BUY')
-                          return total + (current.amount || 0)
-                        if (current.action === 'SELL')
-                          return total - (current.amount || 0)
-                        return total
-                      },
-                      15
-                    ) // Base amount
-
-                    return (
-                      <motion.div
-                        className={`px-2 py-1 text-xs rounded ${
-                          solHolding > 15
-                            ? 'bg-green-800/30 text-green-300'
-                            : solHolding < 15
-                            ? 'bg-red-800/30 text-red-300'
-                            : 'bg-gray-800/50'
-                        }`}
-                        animate={{
-                          scale:
-                            solActivities.length > 0 &&
-                            solActivities[0].timestamp >
-                              new Date(Date.now() - 10000).toISOString()
-                              ? [1, 1.1, 1]
-                              : 1
-                        }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        {solHolding.toFixed(1)} SOL
                       </motion.div>
                     )
                   })()}

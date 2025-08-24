@@ -445,7 +445,7 @@ const AssetsPage = () => {
                         <div>
                           <h4 className="font-bold">
                             {reward.type === RewardType.TOKEN
-                              ? `${reward.amount} Token`
+                              ? `${reward.amount} USDT`
                               : 'NFT 奖励'}
                           </h4>
                           <p className="text-sm text-gray-400">
@@ -539,7 +539,7 @@ const AssetsPage = () => {
                           </td>
                           <td className="py-3 text-sm">
                             {reward.type === RewardType.TOKEN
-                              ? `${reward.amount} Token`
+                              ? `${reward.amount} USDT`
                               : 'NFT'}
                           </td>
                           <td className="py-3 text-sm">{reward.source}</td>

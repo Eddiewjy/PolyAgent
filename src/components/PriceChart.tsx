@@ -103,17 +103,17 @@ const PriceChart: React.FC<PriceChartProps> = ({
           <p className="mb-2 text-sm text-gray-300">{label}</p>
           <div className="space-y-1">
             <p className="text-white">
-              价格:{' '}
+              Price:{' '}
               <span className="font-bold text-primary">
                 ${data.price.toFixed(2)}
               </span>
             </p>
-            <p className="text-green-400">买入量: {data.buyVol.toFixed(1)}</p>
-            <p className="text-red-400">卖出量: {data.sellVol.toFixed(1)}</p>
+            <p className="text-green-400">Buy: {data.buyVol.toFixed(1)}</p>
+            <p className="text-red-400">Sell: {data.sellVol.toFixed(1)}</p>
             <p
               className={`${data.net >= 0 ? 'text-green-400' : 'text-red-400'}`}
             >
-              净流量: {data.net >= 0 ? '+' : ''}
+              Net: {data.net >= 0 ? '+' : ''}
               {data.net.toFixed(1)}
             </p>
             <p className="text-gray-400">Tick: {data.tick}</p>

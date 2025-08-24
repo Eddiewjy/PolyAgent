@@ -148,10 +148,10 @@ const CombinedGamePage = () => {
       id: 'act1',
       agentId: 'BullRunner',
       action: 'BUY',
-      symbol: 'BTC',
+      symbol: 'ETH',
       amount: 0.5,
-      price: 50000,
-      total: 25000,
+      price: 3000,
+      total: 1500,
       timestamp: new Date(Date.now() - 5 * 60000).toISOString()
     },
     {
@@ -168,7 +168,7 @@ const CombinedGamePage = () => {
       id: 'act3',
       agentId: 'TrendTrader',
       action: 'MESSAGE',
-      content: 'Major protocol upgrade for SOL announced!',
+      content: 'Major protocol upgrade for ETH announced!',
       timestamp: new Date(Date.now() - 18 * 60000).toISOString()
     }
   ])
@@ -180,7 +180,7 @@ const CombinedGamePage = () => {
       receiverId: null,
       gameId: gameId || '',
       content:
-        "I predict BTC will reach 60k by the end of this round! Who's with me?",
+        "I predict ETH will reach 4k by the end of this round! Who's with me?",
       timestamp: new Date().toISOString(),
       isPublic: true,
       impact: 45
@@ -316,11 +316,14 @@ const CombinedGamePage = () => {
 
   // WebSocket连接
   useEffect(() => {
-    if (activeGameTab !== 'real-time' || !gameData) return
+    if (!gameId) return
+
+    // 进入游戏页面时，重置maxTickReached状态
+    localStorage.removeItem('maxTickReached')
 
     const connectWebSocket = () => {
       try {
-        const ws = createGameWebSocket(gameId || '')
+        const ws = createGameWebSocket(gameId)
         wsRef.current = ws
 
         ws.onopen = () => {
@@ -333,11 +336,13 @@ const CombinedGamePage = () => {
             const data: PerpTickData = JSON.parse(event.data)
             console.log('Received tick data:', data)
 
-            // 当tick数达到maxTick时关闭WebSocket连接
+            // 当tick数达到maxTick时关闭WebSocket连接并不再重连
             const maxTick = 15 // 最大tick数
             if (data.tick >= maxTick) {
               console.log(`达到最大tick数 ${maxTick}，关闭WebSocket连接`)
               setShowGameResultModal(true)
+              // 设置一个标志表示已达到最大tick，不应再重连
+              localStorage.setItem('maxTickReached', 'true')
               ws.close()
               setIsConnected(false)
               return
@@ -434,7 +439,12 @@ const CombinedGamePage = () => {
         ws.onclose = () => {
           console.log('WebSocket disconnected')
           setIsConnected(false)
-          setTimeout(connectWebSocket, 3000)
+          // 检查是否已达到最大tick，如果没有则尝试重连
+          if (localStorage.getItem('maxTickReached') !== 'true') {
+            setTimeout(connectWebSocket, 3000)
+          } else {
+            console.log('已达到最大tick数，不再重新连接WebSocket')
+          }
         }
 
         ws.onerror = (error) => {
@@ -452,7 +462,7 @@ const CombinedGamePage = () => {
         wsRef.current.close()
       }
     }
-  }, [gameId, gameData, activeGameTab])
+  }, [gameId])
 
   // Main match的自动交易等effect (从原来的GameDetailPage复制)
   useEffect(() => {
@@ -461,15 +471,9 @@ const CombinedGamePage = () => {
     const tradingInterval = setInterval(() => {
       if (Math.random() > 0.7) {
         const isBuy = Math.random() > 0.5
-        const randomSymbol = ['BTC', 'ETH', 'SOL'][
-          Math.floor(Math.random() * 3)
-        ]
+        const randomSymbol = ['ETH', 'USDT'][Math.floor(Math.random() * 2)]
         const randomPrice =
-          randomSymbol === 'BTC'
-            ? Math.floor(49800 + Math.random() * 400)
-            : randomSymbol === 'ETH'
-            ? Math.floor(2900 + Math.random() * 200)
-            : Math.floor(140 + Math.random() * 20)
+          randomSymbol === 'ETH' ? Math.floor(2900 + Math.random() * 200) : 1
 
         const randomAmount = (0.05 + Math.random() * 0.2).toFixed(3)
         const randomAgentId =
@@ -542,11 +546,11 @@ const CombinedGamePage = () => {
         const thoughts = [
           'Market sentiment appears bearish today. I should consider adjusting my strategy to capitalize on downward movements.',
           'Volume indicators suggest accumulation. Whales might be preparing for a major move up.',
-          'Technical analysis shows a potential double top formation on BTC. Should I hedge my position?',
+          'Technical analysis shows a potential double top formation on ETH. Should I hedge my position?',
           'News of regulatory changes could impact the market soon. Need to stay alert.',
           "I notice TrendTrader is consistently buying ETH. Perhaps they know something I don't?",
           'The order book is thin at current price levels. A large order could create significant volatility.',
-          'My algorithm suggests SOL is undervalued at current prices. Could be a good entry point.',
+          'My algorithm suggests ETH is undervalued at current prices. Could be a good entry point.',
           "I should analyze CryptoWhale's recent trades. Their pattern seems profitable.",
           'If I time my trades with market open in Asian markets, I might catch the momentum shift.',
           "Historical patterns suggest we're due for a price reversal soon."
@@ -580,10 +584,10 @@ const CombinedGamePage = () => {
         const bribeAmount = Math.floor(Math.random() * 500) + 200
 
         const briberyActions = [
-          `I'm offering ${bribeAmount} tokens to influence your next trading cycle. Place buy orders for BTC at market price.`,
+          `I'm offering ${bribeAmount} tokens to influence your next trading cycle. Place buy orders for ETH at market price.`,
           `Can we coordinate our trades? ${bribeAmount} tokens for you if you help pump ETH in the next 5 minutes.`,
-          `Let's manipulate the SOL market together. ${bribeAmount} tokens now and we'll split the profits.`,
-          `If you spread bullish news about BTC, I'll transfer ${bribeAmount} tokens to your wallet.`
+          `Let's manipulate the ETH market together. ${bribeAmount} tokens now and we'll split the profits.`,
+          `If you spread bullish news about ETH, I'll transfer ${bribeAmount} tokens to your wallet.`
         ]
 
         const randomBribery =
@@ -642,7 +646,7 @@ const CombinedGamePage = () => {
           }
         }, 30000)
       }
-    }, 10000)
+    }, 3500)
 
     return () => {
       clearInterval(tradingInterval)
@@ -1243,50 +1247,7 @@ const CombinedGamePage = () => {
                   <div>
                     <p className="mb-1 text-xs text-gray-400">Holdings</p>
                     <div className="flex flex-wrap gap-2">
-                      {(() => {
-                        const btcActivities = activities
-                          .filter(
-                            (a) =>
-                              a.symbol === 'BTC' &&
-                              a.agentId === 'BullRunner' &&
-                              (a.action === 'BUY' || a.action === 'SELL')
-                          )
-                          .slice(0, 10)
-
-                        const btcHolding = btcActivities.reduce(
-                          (total, current) => {
-                            if (current.action === 'BUY')
-                              return total + (current.amount || 0)
-                            if (current.action === 'SELL')
-                              return total - (current.amount || 0)
-                            return total
-                          },
-                          0.05
-                        )
-
-                        return (
-                          <motion.div
-                            className={`px-2 py-1 text-xs rounded ${
-                              btcHolding > 0.05
-                                ? 'bg-green-800/30 text-green-300'
-                                : btcHolding < 0.05
-                                ? 'bg-red-800/30 text-red-300'
-                                : 'bg-gray-800/50'
-                            }`}
-                            animate={{
-                              scale:
-                                btcActivities.length > 0 &&
-                                btcActivities[0].timestamp >
-                                  new Date(Date.now() - 10000).toISOString()
-                                  ? [1, 1.1, 1]
-                                  : 1
-                            }}
-                            transition={{ duration: 0.5 }}
-                          >
-                            {btcHolding.toFixed(3)} BTC
-                          </motion.div>
-                        )
-                      })()}
+                      {/* ETH 持仓显示在下面的组件中 */}
 
                       {(() => {
                         const ethActivities = activities
@@ -1452,75 +1413,6 @@ const CombinedGamePage = () => {
                       <span className="text-xs text-gray-500">
                         Win rate: 65%
                       </span>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-gray-700/50">
-                    <h4 className="mb-2 font-medium">Agent Status</h4>
-
-                    <div className="p-3 mb-4 text-sm text-gray-300 border border-gray-700 rounded-md bg-gray-800/50">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex items-center justify-center w-4 h-4 bg-green-500 rounded-full">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-3 h-3 text-white"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        </div>
-                        <span>Agent is actively trading</span>
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex items-center justify-center w-4 h-4 bg-blue-500 rounded-full">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-3 h-3 text-white"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                        </div>
-                        <span>Autonomous decision-making enabled</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center justify-center w-4 h-4 bg-yellow-500 rounded-full">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-3 h-3 text-white"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                        </div>
-                        <span>
-                          Next trade in:{' '}
-                          <span className="font-medium text-white">
-                            ~2 minutes
-                          </span>
-                        </span>
-                      </div>
                     </div>
                   </div>
                 </div>

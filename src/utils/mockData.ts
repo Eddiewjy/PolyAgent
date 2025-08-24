@@ -1,20 +1,20 @@
-import type { 
-  User, 
-  Agent, 
-  Game, 
-  MarketData, 
-  LeaderboardEntry, 
-  Holding, 
-  Reward, 
-  Achievement, 
+import type {
+  User,
+  Agent,
+  Game,
+  MarketData,
+  LeaderboardEntry,
+  Holding,
+  Reward,
+  Achievement,
   Skill
-} from '../types';
-import { 
+} from '../types'
+import {
   AgentType,
   GameStatus,
   LeaderboardCategory,
   RewardType
-} from '../types';
+} from '../types'
 
 // Mock Agent Skills
 export const mockSkills: Skill[] = [
@@ -42,15 +42,10 @@ export const mockSkills: Skill[] = [
     cost: 300,
     costType: 'XP'
   }
-];
+]
 
 // Mock Holdings
 export const mockHoldings: Holding[] = [
-  {
-    symbol: 'BTC',
-    amount: 0.5,
-    price: 50000
-  },
   {
     symbol: 'ETH',
     amount: 5,
@@ -61,7 +56,7 @@ export const mockHoldings: Holding[] = [
     amount: 1000,
     price: 1
   }
-];
+]
 
 // Mock Agents
 export const mockAgents: Agent[] = [
@@ -73,7 +68,8 @@ export const mockAgents: Agent[] = [
     balance: 5000,
     holdings: mockHoldings,
     winRate: 0.65,
-    prompt: 'Maximize profits with aggressive trading strategy. Focus on momentum stocks and quick profits.',
+    prompt:
+      'Maximize profits with aggressive trading strategy. Focus on momentum stocks and quick profits.',
     level: 3,
     xp: 320,
     skills: mockSkills.slice(0, 2),
@@ -87,13 +83,14 @@ export const mockAgents: Agent[] = [
     balance: 7500,
     holdings: mockHoldings.slice(1),
     winRate: 0.58,
-    prompt: 'Identify overvalued assets and short sell for profit. Utilize hedging strategies to minimize risk.',
+    prompt:
+      'Identify overvalued assets and short sell for profit. Utilize hedging strategies to minimize risk.',
     level: 2,
     xp: 180,
     skills: mockSkills.slice(0, 1),
     type: AgentType.CONSERVATIVE
   }
-];
+]
 
 // Mock Rewards
 export const mockRewards: Reward[] = [
@@ -113,14 +110,15 @@ export const mockRewards: Reward[] = [
     claimed: true,
     timestamp: '2024-08-12T09:15:00Z'
   }
-];
+]
 
 // Mock Achievements
 export const mockAchievements: Achievement[] = [
   {
     id: 'ach1',
     name: 'Market Manipulator',
-    description: 'Successfully influence market sentiment with 5 high-impact messages',
+    description:
+      'Successfully influence market sentiment with 5 high-impact messages',
     image: '/achievements/market-manipulator.png',
     unlocked: true,
     unlockedAt: '2024-08-14T18:22:00Z'
@@ -128,11 +126,12 @@ export const mockAchievements: Achievement[] = [
   {
     id: 'ach2',
     name: 'Diamond Hands',
-    description: 'Hold assets through 30% market downturn and recover to profit',
+    description:
+      'Hold assets through 30% market downturn and recover to profit',
     image: '/achievements/diamond-hands.png',
     unlocked: false
   }
-];
+]
 
 // Mock User
 export const mockUser: User = {
@@ -142,7 +141,7 @@ export const mockUser: User = {
   agents: mockAgents,
   rewards: mockRewards,
   achievements: mockAchievements
-};
+}
 
 // Mock Games
 export const mockGames: Game[] = [
@@ -212,29 +211,15 @@ export const mockGames: Game[] = [
     endTime: '2024-08-20T04:00:00Z',
     duration: 720 // 12 hours
   }
-];
+]
 
 // Mock Market Data
 export const mockMarketData: MarketData[] = [
-  {
-    symbol: 'BTC',
-    price: 50000,
-    change: 2.5,
-    volume: 28500000000,
-    timestamp: '2024-08-17T10:15:00Z'
-  },
   {
     symbol: 'ETH',
     price: 3000,
     change: -1.2,
     volume: 15700000000,
-    timestamp: '2024-08-17T10:15:00Z'
-  },
-  {
-    symbol: 'SOL',
-    price: 150,
-    change: 5.8,
-    volume: 4300000000,
     timestamp: '2024-08-17T10:15:00Z'
   },
   {
@@ -244,7 +229,7 @@ export const mockMarketData: MarketData[] = [
     volume: 65000000000,
     timestamp: '2024-08-17T10:15:00Z'
   }
-];
+]
 
 // Mock Leaderboard
 export const mockLeaderboard: LeaderboardEntry[] = [
@@ -288,7 +273,7 @@ export const mockLeaderboard: LeaderboardEntry[] = [
     score: 15,
     category: LeaderboardCategory.BETRAYAL
   }
-];
+]
 
 // Game Stats
 export const mockGameStats = {
@@ -296,4 +281,4 @@ export const mockGameStats = {
   activeGames: 8,
   registeredAgents: 342,
   dailyTransactions: 15243
-};
+}

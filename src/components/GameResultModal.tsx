@@ -31,11 +31,11 @@ const GameResultModal = ({
 }: GameResultModalProps) => {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardItem[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  
+
   // 从后端获取排行榜数据
   useEffect(() => {
     if (!isOpen) return
-    
+
     const fetchLeaderboard = async () => {
       setIsLoading(true)
       try {
@@ -47,23 +47,24 @@ const GameResultModal = ({
         setIsLoading(false)
       }
     }
-    
+
     fetchLeaderboard()
   }, [isOpen])
-  
+
   // 将后端数据转换为组件需要的格式
-  const rankings = leaderboardData.length > 0
-    ? leaderboardData.map((item, index) => ({
-        id: index + 1,
-        name: item.id.replace('-', ' ').toUpperCase(),
-        portfolioValue: item.equity,
-        percentChange: ((item.realized / 1000) * 100) || 0, // 假设初始资金是1000，计算百分比变化
-        tradingVolume: item.volume || 0,
-        trades: Math.round(item.volume / 100) || 0, // 估算交易次数
-        isUser: item.id.includes('user')
-      }))
-    : propRankings || []
-    
+  const rankings =
+    leaderboardData.length > 0
+      ? leaderboardData.map((item, index) => ({
+          id: index + 1,
+          name: item.id.replace('-', ' ').toUpperCase(),
+          portfolioValue: item.equity,
+          percentChange: (item.realized / 1000) * 100 || 0, // 假设初始资金是1000，计算百分比变化
+          tradingVolume: item.volume || 0,
+          trades: Math.round(item.volume / 100) || 0, // 估算交易次数
+          isUser: item.id.includes('user')
+        }))
+      : propRankings || []
+
   if (!isOpen) return null
 
   return (
@@ -184,7 +185,8 @@ const GameResultModal = ({
                 </p>
                 <div className="flex flex-col gap-1 mt-2">
                   <p className="text-sm text-gray-300">
-                    已实现收益: ${(leaderboardData[index]?.realized || 0).toLocaleString()}
+                    已实现收益: $
+                    {(leaderboardData[index]?.realized || 0).toLocaleString()}
                   </p>
                   <p className="mt-2 text-xs text-gray-400">
                     交易量: ${agent.tradingVolume.toLocaleString()}
@@ -212,70 +214,74 @@ const GameResultModal = ({
                 <div className="flex items-center justify-center py-8">
                   <div className="w-8 h-8 border-t-2 rounded-full border-primary animate-spin"></div>
                 </div>
-              ) : rankings.map((agent, index) => (
-                <motion.div
-                  key={agent.id}
-                  className={`grid grid-cols-12 py-3 px-4 text-sm border-b border-gray-800 gap-x-4 items-center ${
-                    agent.isUser
-                      ? 'bg-primary/10'
-                      : index % 2 === 0
-                      ? 'bg-gray-800/20'
-                      : ''
-                  }`}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + index * 0.05 }}
-                >
-                  <div className="col-span-1">
-                    {index < 3 ? (
-                      <span
-                        className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${
-                          index === 0
-                            ? 'bg-yellow-500/20 text-yellow-400'
-                            : index === 1
-                            ? 'bg-gray-400/20 text-gray-300'
-                            : 'bg-amber-600/20 text-amber-500'
-                        }`}
-                      >
-                        {index + 1}
-                      </span>
-                    ) : (
-                      <span className="text-gray-500">{index + 1}</span>
-                    )}
-                  </div>
-                  <div className="flex items-center col-span-3">
-                    {agent.isUser && (
-                      <span className="mr-1.5 w-1.5 h-1.5 rounded-full bg-primary"></span>
-                    )}
-                    <span
-                      className={agent.isUser ? 'text-primary font-medium' : ''}
-                    >
-                      {agent.name}
-                    </span>
-                  </div>
-                  <div className="col-span-3 text-right">
-                    ${agent.portfolioValue.toLocaleString()}
-                  </div>
-                  <div
-                    className={`col-span-2 text-right ${
-                      agent.percentChange >= 0
-                        ? 'text-green-400'
-                        : 'text-red-400'
+              ) : (
+                rankings.map((agent, index) => (
+                  <motion.div
+                    key={agent.id}
+                    className={`grid grid-cols-12 py-3 px-4 text-sm border-b border-gray-800 gap-x-4 items-center ${
+                      agent.isUser
+                        ? 'bg-primary/10'
+                        : index % 2 === 0
+                        ? 'bg-gray-800/20'
+                        : ''
                     }`}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 + index * 0.05 }}
                   >
-                    ${(leaderboardData[index]?.realized || 0).toLocaleString()}
-                  </div>
-                  <div className="col-span-3 text-right text-gray-300">
-                    ${agent.tradingVolume.toLocaleString()}
-                  </div>
-                </motion.div>
-              ))}
+                    <div className="col-span-1">
+                      {index < 3 ? (
+                        <span
+                          className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${
+                            index === 0
+                              ? 'bg-yellow-500/20 text-yellow-400'
+                              : index === 1
+                              ? 'bg-gray-400/20 text-gray-300'
+                              : 'bg-amber-600/20 text-amber-500'
+                          }`}
+                        >
+                          {index + 1}
+                        </span>
+                      ) : (
+                        <span className="text-gray-500">{index + 1}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center col-span-3">
+                      {agent.isUser && (
+                        <span className="mr-1.5 w-1.5 h-1.5 rounded-full bg-primary"></span>
+                      )}
+                      <span
+                        className={
+                          agent.isUser ? 'text-primary font-medium' : ''
+                        }
+                      >
+                        {agent.name}
+                      </span>
+                    </div>
+                    <div className="col-span-3 text-right">
+                      ${agent.portfolioValue.toLocaleString()}
+                    </div>
+                    <div
+                      className={`col-span-2 text-right ${
+                        agent.percentChange >= 0
+                          ? 'text-green-400'
+                          : 'text-red-400'
+                      }`}
+                    >
+                      $
+                      {(leaderboardData[index]?.realized || 0).toLocaleString()}
+                    </div>
+                    <div className="col-span-3 text-right text-gray-300">
+                      ${agent.tradingVolume.toLocaleString()}
+                    </div>
+                  </motion.div>
+                ))
+              )}
             </div>
           </div>
         </div>
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-800">
-          
           <Button
             text="回到主页"
             variant="primary"
