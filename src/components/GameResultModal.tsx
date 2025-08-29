@@ -32,14 +32,14 @@ const GameResultModal = ({
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardItem[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
-  // 从后端获取排行榜数据
+  // Fetch leaderboard data from backend
   useEffect(() => {
     if (!isOpen) return
 
     const fetchLeaderboard = async () => {
       setIsLoading(true)
       try {
-        const response = await gameAPI.getLeaderboard(10) // 获取前10名
+        const response = await gameAPI.getLeaderboard(10) // Get top 10
         setLeaderboardData(response.data)
       } catch (error) {
         console.error('Error fetching leaderboard:', error)
@@ -51,16 +51,16 @@ const GameResultModal = ({
     fetchLeaderboard()
   }, [isOpen])
 
-  // 将后端数据转换为组件需要的格式
+  // Convert backend data to component-required format
   const rankings =
     leaderboardData.length > 0
       ? leaderboardData.map((item, index) => ({
           id: index + 1,
           name: item.id.replace('-', ' ').toUpperCase(),
           portfolioValue: item.equity,
-          percentChange: (item.realized / 1000) * 100 || 0, // 假设初始资金是1000，计算百分比变化
+          percentChange: (item.realized / 1000) * 100 || 0, // Assume initial capital is 1000, calculate percentage change
           tradingVolume: item.volume || 0,
-          trades: Math.round(item.volume / 100) || 0, // 估算交易次数
+          trades: Math.round(item.volume / 100) || 0, // Estimate number of trades
           isUser: item.id.includes('user')
         }))
       : propRankings || []
@@ -84,10 +84,10 @@ const GameResultModal = ({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold text-white">
-              游戏结束 - 最终排行榜
+              Game Over - Final Leaderboard
             </h2>
             <p className="mt-1 text-sm text-gray-400">
-              数据来自后端API，按总权益(equity)排序
+              Data from backend API, sorted by total equity
             </p>
           </div>
           <button
@@ -111,7 +111,7 @@ const GameResultModal = ({
           </button>
         </div>
 
-        {/* 顶部的奖杯和动画 */}
+        {/* Top trophy and animation */}
         <div className="flex flex-col items-center justify-center mb-6">
           <motion.div
             initial={{ scale: 0 }}
@@ -137,11 +137,11 @@ const GameResultModal = ({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
           >
-            交易已结束！
+            Trading is complete!
           </motion.h3>
         </div>
 
-        {/* 前三名特别展示 */}
+        {/* Special display for top 3 */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">
           {isLoading ? (
             <div className="flex items-center justify-center w-full py-8">
@@ -185,11 +185,11 @@ const GameResultModal = ({
                 </p>
                 <div className="flex flex-col gap-1 mt-2">
                   <p className="text-sm text-gray-300">
-                    已实现收益: $
+                    Realized Profit: $
                     {(leaderboardData[index]?.realized || 0).toLocaleString()}
                   </p>
                   <p className="mt-2 text-xs text-gray-400">
-                    交易量: ${agent.tradingVolume.toLocaleString()}
+                    Trading Volume: ${agent.tradingVolume.toLocaleString()}
                   </p>
                 </div>
               </motion.div>
@@ -197,16 +197,16 @@ const GameResultModal = ({
           )}
         </div>
 
-        {/* 完整排行榜 */}
+        {/* Complete leaderboard */}
         <div className="mb-6">
-          <h3 className="mb-4 font-semibold text-gray-300">完整排行榜</h3>
+          <h3 className="mb-4 font-semibold text-gray-300">Complete Leaderboard</h3>
           <div className="overflow-hidden border border-gray-800 rounded-lg">
             <div className="grid grid-cols-12 px-4 py-2 text-sm font-medium text-gray-400 border-b border-gray-800 gap-x-4 bg-gray-800/50">
-              <div className="col-span-1">排名</div>
-              <div className="col-span-3">代理</div>
-              <div className="col-span-3 text-right">总权益</div>
-              <div className="col-span-2 text-right">已实现收益</div>
-              <div className="col-span-3 text-right">交易量</div>
+              <div className="col-span-1">Rank</div>
+              <div className="col-span-3">Agent</div>
+              <div className="col-span-3 text-right">Total Equity</div>
+              <div className="col-span-2 text-right">Realized Profit</div>
+              <div className="col-span-3 text-right">Trading Volume</div>
             </div>
 
             <div className="overflow-y-auto max-h-64">
@@ -283,7 +283,7 @@ const GameResultModal = ({
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-800">
           <Button
-            text="回到主页"
+            text="Back to Home"
             variant="primary"
             onClick={() => (window.location.href = '/games')}
           />

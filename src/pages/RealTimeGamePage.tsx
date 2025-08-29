@@ -16,7 +16,7 @@ interface GameData {
   history: number[]
 }
 
-// perp-bot-mvp的WebSocket数据格式
+// WebSocket data format for perp-bot-mvp
 interface PerpTickData {
   tick: number
   price: number

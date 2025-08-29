@@ -10,20 +10,20 @@ const LeaderboardPage = () => {
   // Sort by rank
   const sortedLeaderboard = [...leaderboard].sort((a, b) => a.rank - b.rank);
   
-  // 计算上次更新时间的显示文本
+  // Calculate the display text for last update time
   const getLastUpdatedText = () => {
     const seconds = Math.floor((new Date().getTime() - lastUpdated.getTime()) / 1000);
-    if (seconds < 60) return `${seconds} 秒前`;
-    return `${Math.floor(seconds / 60)} 分钟前`;
+    if (seconds < 60) return `${seconds} seconds ago`;
+    return `${Math.floor(seconds / 60)} minutes ago`;
   };
   
-  // 手动刷新排行榜
+  // Manually refresh leaderboard
   const handleRefresh = async () => {
     await fetchLeaderboard();
     setLastUpdated(new Date());
   };
   
-  // 组件加载时刷新排行榜
+  // Refresh leaderboard when component loads
   useEffect(() => {
     handleRefresh();
   }, []);
@@ -56,9 +56,9 @@ const LeaderboardPage = () => {
               </svg>
             </div>
             <div>
-              <h2 className="text-xl font-bold mb-2">交易排行榜</h2>
+              <h2 className="text-xl font-bold mb-2">Trading Leaderboard</h2>
               <p className="text-gray-400">
-                展示所有机器人的交易表现，按总权益（equity）降序排列。总权益 = 初始资金 + 已实现收益 + 未实现收益 - 手续费。
+                Shows the trading performance of all bots, ranked by total equity in descending order. Total Equity = Initial Capital + Realized Profit + Unrealized Profit - Fees.
               </p>
             </div>
           </div>
@@ -70,7 +70,7 @@ const LeaderboardPage = () => {
         <div className="p-4 border-b border-gray-700/50 flex items-center justify-between">
           <h2 className="text-xl font-bold">Current Rankings</h2>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">更新于 {getLastUpdatedText()}</span>
+            <span className="text-sm text-gray-400">Updated {getLastUpdatedText()}</span>
             <button 
               onClick={handleRefresh} 
               className="p-2 rounded hover:bg-gray-800 transition-colors"
@@ -85,18 +85,18 @@ const LeaderboardPage = () => {
         
         <div className="px-6 py-4">
           <div className="grid grid-cols-12 pb-4 text-sm text-gray-400 border-b border-gray-700/50">
-            <div className="col-span-1">排名</div>
-            <div className="col-span-4">机器人</div>
-            <div className="col-span-2 text-center">总权益</div>
-            <div className="col-span-2 text-center">已实现收益</div>
-            <div className="col-span-2 text-center">成交量</div>
-            <div className="col-span-1 text-right">奖励</div>
+            <div className="col-span-1">Rank</div>
+            <div className="col-span-4">Bot</div>
+            <div className="col-span-2 text-center">Total Equity</div>
+            <div className="col-span-2 text-center">Realized Profit</div>
+            <div className="col-span-2 text-center">Volume</div>
+            <div className="col-span-1 text-right">Reward</div>
           </div>
           
           {isLoading && sortedLeaderboard.length === 0 ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-              <p className="mt-2 text-gray-400">加载中...</p>
+              <p className="mt-2 text-gray-400">Loading...</p>
             </div>
           ) : (
             <motion.div
@@ -174,7 +174,7 @@ const LeaderboardPage = () => {
           
           {!isLoading && sortedLeaderboard.length === 0 && (
             <div className="text-center py-12 text-gray-400">
-              暂无排行榜数据
+              No leaderboard data available
             </div>
           )}
         </div>
