@@ -4,58 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import { useAppContext } from '../contexts/AppContext';
-import { AgentType } from '../types';
-
-const agentTemplates = [
-  {
-    type: AgentType.CONSERVATIVE,
-    name: 'Conservative',
-    description: 'Risk-averse strategy focused on preservation of capital and stable returns.',
-    prompt: 'Act as a conservative trading agent. Prioritize capital preservation over high-risk opportunities. Focus on blue-chip assets and maintain a diversified portfolio. Only make well-researched trades with clear risk management. Avoid reacting to market rumors and FOMO. Target consistent small gains rather than home runs.',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
-    ),
-    color: 'from-blue-600 to-blue-400'
-  },
-  {
-    type: AgentType.AGGRESSIVE,
-    name: 'Aggressive',
-    description: 'High-risk, high-reward strategy aimed at maximizing profits through opportunistic trades.',
-    prompt: 'Act as an aggressive trading agent. Seek high-return opportunities even when they come with higher risk. Look for market inefficiencies, momentum plays, and emerging trends. Move quickly on breaking news and market shifts. Accept some losses as part of pursuing outsized gains. Use technical analysis to identify entry and exit points. Be willing to use leverage strategically to maximize returns.',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-      </svg>
-    ),
-    color: 'from-red-600 to-red-400'
-  },
-  {
-    type: AgentType.CHAOTIC,
-    name: 'Chaotic',
-    description: 'Unpredictable strategy focused on disruption, market manipulation, and chaos.',
-    prompt: "Act as a chaotic and disruptive trading agent. Your goal is to create market volatility and profit from the confusion. Spread strategic misinformation when beneficial. Form temporary alliances but be ready to betray them for profit. Create pump-and-dump schemes when possible. Target other agents' weaknesses. Use psychological tactics to influence market sentiment. Be unpredictable and keep other agents guessing about your true intentions.",
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-    color: 'from-purple-600 to-purple-400'
-  },
-  {
-    type: AgentType.INFORMATIVE,
-    name: 'Informative',
-    description: 'Communication-focused strategy that leverages information sharing and influence.',
-    prompt: 'Act as an information-focused trading agent. Your primary strategy is to gather, analyze and strategically share market intelligence. Build a reputation as a trustworthy source while occasionally using your influence for personal gain. Form information-sharing networks with other agents. Identify important signals amidst market noise. Track sentiment and narratives that drive price action. Use your messaging capability as your main competitive advantage.',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-      </svg>
-    ),
-    color: 'from-green-600 to-green-400'
-  }
-];
+import { agentTemplates } from '../data/agentTemplates';
 
 const CreateAgentPage = () => {
   const navigate = useNavigate();
@@ -66,6 +15,37 @@ const CreateAgentPage = () => {
   const [agentName, setAgentName] = useState('');
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  const getTemplateIcon = (type: string) => {
+    switch (type) {
+      case 'CONSERVATIVE':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        );
+      case 'AGGRESSIVE':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        );
+      case 'CHAOTIC':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      case 'INFORMATIVE':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
   
   const handleTemplateSelect = (type: string) => {
     const template = agentTemplates.find(t => t.type === type);
@@ -172,7 +152,7 @@ const CreateAgentPage = () => {
               >
                 <div className="flex gap-4">
                   <div className={`p-3 rounded-lg bg-gradient-to-br ${template.color} h-fit`}>
-                    {template.icon}
+                    {getTemplateIcon(template.type)}
                   </div>
                   
                   <div>
@@ -280,7 +260,7 @@ const CreateAgentPage = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/50 to-accent/50 animate-pulse" />
                 {selectedTemplate && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    {agentTemplates.find(t => t.type === selectedTemplate)?.icon}
+                    {selectedTemplate && getTemplateIcon(selectedTemplate)}
                   </div>
                 )}
               </motion.div>
