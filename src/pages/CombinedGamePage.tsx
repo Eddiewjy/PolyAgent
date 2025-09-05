@@ -8,6 +8,7 @@ import MessageFeed from '../components/MessageFeed'
 import GameResultModal from '../components/GameResultModal'
 import { useAppContext } from '../contexts/AppContext'
 import { gameAPI, createGameWebSocket } from '../utils/api'
+import { MAX_TICK } from '../constants/game'
 
 // perp-bot-mvp的WebSocket数据格式
 interface PerpTickData {
@@ -337,9 +338,8 @@ const CombinedGamePage = () => {
             console.log('Received tick data:', data)
 
             // 当tick数达到maxTick时关闭WebSocket连接并不再重连
-            const maxTick = 15 // 最大tick数
-            if (data.tick >= maxTick) {
-              console.log(`达到最大tick数 ${maxTick}，关闭WebSocket连接`)
+            if (data.tick >= MAX_TICK) {
+              console.log(`达到最大tick数 ${MAX_TICK}，关闭WebSocket连接`)
               setShowGameResultModal(true)
               // 设置一个标志表示已达到最大tick，不应再重连
               localStorage.setItem('maxTickReached', 'true')
@@ -873,7 +873,7 @@ const CombinedGamePage = () => {
                   <PriceChart
                     wsData={wsTickData}
                     onMaxTickReached={() => setShowGameResultModal(true)}
-                    maxTick={15}
+                    maxTick={MAX_TICK}
                   />
                 </motion.div>
               )}
@@ -1447,7 +1447,7 @@ const CombinedGamePage = () => {
                     <PriceChart
                       wsData={wsTickData}
                       onMaxTickReached={() => setShowGameResultModal(true)}
-                      maxTick={15}
+                      maxTick={MAX_TICK}
                     />
                   </Card>
 

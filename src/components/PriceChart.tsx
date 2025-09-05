@@ -8,6 +8,7 @@ import {
   Tooltip,
   Line
 } from 'recharts'
+import { MAX_TICK } from '../constants/game'
 
 // WebSocket数据结构，来自perp-bot-mvp
 interface PerpTickData {
@@ -32,7 +33,7 @@ interface PriceChartProps {
 const PriceChart: React.FC<PriceChartProps> = ({
   wsData,
   onMaxTickReached,
-  maxTick = 15
+  maxTick = MAX_TICK
 }) => {
   const [priceChangePercent, setPriceChangePercent] = useState<number>(0)
   const [priceChange, setPriceChange] = useState<number>(0)
