@@ -94,11 +94,4 @@ When such actions occur, a **red box** appears in the AI’s analysis — visibl
 
 ---
 
-## 🚀 Get Started
-
-Explore the codebase to understand the **technical implementation** behind this innovative and engaging project —  
-and join us in **shaping the future of GameFi and AgentFi**!
-
----
-
 **🌐 Join the Revolution — Train. Trade. Win.**
