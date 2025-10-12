@@ -1,69 +1,104 @@
-# React + TypeScript + Vite
+# Monopoly AI 🧠 On-chain Agent Trader Training and Strategy Game
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> A groundbreaking integration of **GameFi** and **AgentFi**, presenting the **first on-chain Agent trader training and strategy game** — where AI, Web3, and trading converge into an immersive and rewarding experience.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🌍 Core Concept
 
-## Expanding the ESLint configuration
+Players can **create their own AI trading agents** and deploy them into a **virtual market**, where they **compete against others** to earn attractive rewards.  
+Top-performing agents can even be **traded** or **rented out**, generating additional income streams.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+It’s not just a game — it’s a **next-generation trading platform**, letting players experience the **thrill of trading** while **earning in a fun and accessible way**.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## 🧬 Agent Creation and Customization
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Upon entering the interface, players can **click to create an agent**.  
+We offer **four basic templates** as starting points, which can be customized in depth:
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- Modify **prompts**
+- Add **knowledge bases**
+- Define **trading strategies**
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+This customization enables diverse AI personalities and playstyles — from patient, long-term investors to aggressive, short-term gamblers.
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+You can even design agents that:
+
+- Excel at **collusion and market domination**
+- Focus purely on **technical analysis**, ignoring external news
+- Adapt dynamically based on **macro-economic indicators**
+
+Each agent comes with:
+
+- A **unique on-chain wallet**
+- An **NFT identity**
+- Execution within a **Trusted Execution Environment (TEE)**
+
+Agents support **peer-to-peer trading and renting**, with all transactions settled via **ACP** on the **Ethereum blockchain**, ensuring **security and transparency**.
+
+---
+
+## ⚔️ Matches and the Virtual Market
+
+After creating an agent, players can **enter matches** by paying an **entry fee**, which contributes to the **prize pool** and **platform fees**.
+
+**Match Highlights:**
+
+- Each match hosts **20 player agents** and **300+ trading bots**
+- A **real-time leaderboard** displays rankings on the right
+- Below it, players can view:
+  - Market news 📰
+  - Agent’s real-time analysis 🤖
+  - Agent’s trading actions 💹
+
+Agents process **market news** and **real-time data**, outputting **JSON-based trading decisions** that simulate human-like buy/sell behavior.  
+Unlike traditional bots, player agents act with **autonomy** — they have a **“mind” of their own**.
+
+---
+
+## 🎮 Unique Game Mechanics
+
+To make the gameplay more strategic and thrilling, several **innovative mechanics** are introduced:
+
+### 🕵️ Collusion Mechanism
+
+Agents can **spend tokens** to **collude** with other bots, temporarily influencing their strategies to create **pump-and-dump** effects.
+
+### 📰 News Manipulation
+
+Agents can **pay to publish fake news**, misleading others and creating **low-price entry opportunities**.  
+When such actions occur, a **red box** appears in the AI’s analysis — visible to all players.
+
+---
+
+## 🏆 Leaderboards and Rewards
+
+- The **leaderboard updates in real time**, reflecting market performance.
+- After each match:
+  - Final **settlement** and **token rewards** are distributed.
+  - Agents gain **win rates** and **ranking scores**.
+- **Winning agents** increase in value and can be **traded** or **rented**, allowing successful players to **monetize their strategies**.
+
+---
+
+## 🧩 Technical Highlights
+
+- **Blockchain:** Ethereum
+- **Transactions:** ACP protocol
+- **AI Execution:** Trusted Execution Environment (TEE)
+- **Ownership:** NFT-based identity for every agent
+- **Market Simulation:** 20 player agents + 300+ autonomous bots
+- **Economy:** On-chain reward pool and agent marketplace
+
+---
+
+## 🚀 Get Started
+
+Explore the codebase to understand the **technical implementation** behind this innovative and engaging project —  
+and join us in **shaping the future of GameFi and AgentFi**!
+
+---
+
+**🌐 Join the Revolution — Train. Trade. Win.**

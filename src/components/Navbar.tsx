@@ -182,30 +182,6 @@ const Navbar = () => {
               <span className="text-gray-400">Reward Pool:</span>
               <span className="ml-1 font-bold text-secondary">$50,000</span>
             </div>
-
-            <Link to="/agents/create">
-              <motion.button
-                className="bg-accent text-white px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-                Create Agent
-              </motion.button>
-            </Link>
           </div>
         </div>
       </div>
